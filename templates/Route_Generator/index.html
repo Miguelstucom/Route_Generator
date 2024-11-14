@@ -1,12 +1,82 @@
-<!-- mi_app/templates/mi_app/ejemplo.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Página</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribución de Rutas Óptimas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"> 
 </head>
 <body>
-    <h1>¡Hola, Django!</h1>
-    <p>Esta es una página de ejemplo.</p>
+    <header>
+        <div class="header-container">
+            <h1>Distribución de Rutas Óptimas</h1>
+            <p>Calcula las rutas de entrega basadas en la fecha de caducidad de los productos</p>
+        </div>
+    </header>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="#home">Inicio</a></li>
+            <li><a href="#calculate">Calcular Ruta</a></li>
+            <li><a href="#about">Sobre Nosotros</a></li>
+        </ul>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <h2>Optimiza tus Rutas de Entrega</h2>
+            <p>Distribuye tus productos de forma eficiente con nuestros algoritmos de optimización. Selecciona un destino y te diremos la mejor ruta.</p>
+            <a href="#calculate" class="btn">Comienza ahora</a>
+        </div>
+    </section>
+
+    <section id="calculate" class="form-section">
+        <div class="form-container">
+            <h2>Introduce los Detalles del Pedido</h2>
+            <form action="#">
+                <div class="input-group">
+                    <label for="product">Producto:</label>
+                    <input type="text" id="product" name="product" required>
+                </div>
+                <div class="input-group">
+                    <label for="quantity">Cantidad:</label>
+                    <input type="number" id="quantity" name="quantity" required>
+                </div>
+                <div class="input-group">
+                    <label for="expiry_date">Fecha de Caducidad:</label>
+                    <input type="date" id="expiry_date" name="expiry_date" required>
+                </div>
+                <div class="input-group">
+                    <label for="destination">Destino:</label>
+                    <select id="destination" name="destination" required>
+                        <option value="spain">España</option>
+                        <option value="portugal">Portugal</option>
+                        <option value="andorra">Andorra</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Calcular Ruta</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="route-result" class="result-section">
+        <div class="result-container">
+            <h2>Ruta Óptima Sugerida</h2>
+            <div class="result-details">
+                <p><strong>Producto:</strong> <span id="product-output">N/A</span></p>
+                <p><strong>Cantidad:</strong> <span id="quantity-output">N/A</span></p>
+                <p><strong>Destino:</strong> <span id="destination-output">N/A</span></p>
+                <p><strong>Fecha de Caducidad:</strong> <span id="expiry-output">N/A</span></p>
+                <p><strong>Ruta Sugerida:</strong> <span id="route-output">N/A</span></p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2024 Distribución de Productos - Todos los derechos reservados</p>
+        </div>
+    </footer>
 </body>
 </html>
