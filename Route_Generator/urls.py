@@ -5,5 +5,5 @@ from Route_Generator import views
 
 urlpatterns = [
     path('index/', views.main_view, name='ejemplo'),
-    # Agrega otros patrones de URL aquí
+    #
 ]
