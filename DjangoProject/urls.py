@@ -23,5 +23,6 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('Route_Generator/', include('Route_Generator.urls')),  # Incluye las URLs de tu app
+    path('Route_Generator/', include('Route_Generator.urls')),
+    path('map/', include('Route_Generator.urls')),
 ]
