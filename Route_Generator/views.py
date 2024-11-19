@@ -45,4 +45,4 @@ def mostrar_mapa(request):
     map_path = "Route_Generator/static/mapas/mapa_espana.html"
     mapa.save(map_path)
 
-    return render(request, 'Route_Generator/mapa.html', {'map_path': map_path})
+    return render(request, 'Route_Generator/index.html', {'map_path': map_path})
