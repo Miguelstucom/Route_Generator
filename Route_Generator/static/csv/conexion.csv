@@ -1,226 +1,111 @@
-Capital_1,Capital_2
-"A Coruña","Lugo"
-"A Coruña","Santiago de Compostela"
-"A Coruña","Ourense"
-"A Coruña","Vigo"
-"A Coruña","Zaragoza"
-"A Coruña","Madrid"
-"A Coruña","Barcelona"
-"Albacete","Ciudad Real"
-"Albacete","Cuenca"
-"Albacete","Valencia"
-"Albacete","Madrid"
-"Albacete","Barcelona"
-"Albacete","Alicante"
-"Alicante","Valencia"
-"Alicante","Murcia"
-"Alicante","Albacete"
-"Alicante","Madrid"
-"Almería","Granada"
-"Almería","Málaga"
-"Almería","Córdoba"
-"Ávila","Segovia"
-"Ávila","Salamanca"
-"Ávila","Madrid"
-"Ávila","Toledo"
-"Barcelona","Girona"
-"Barcelona","Tarragona"
-"Barcelona","Lleida"
-"Barcelona","Madrid"
-"Barcelona","Valencia"
-"Bilbao","Vitoria"
-"Bilbao","San Sebastián"
-"Bilbao","Pamplona"
-"Bilbao","Madrid"
-"Bilbao","Zaragoza"
-"Burgos","Valladolid"
-"Burgos","Logroño"
-"Burgos","Palencia"
-"Burgos","Madrid"
-"Burgos","Bilbao"
-"Cáceres","Badajoz"
-"Cáceres","Salamanca"
-"Cáceres","Madrid"
-"Cádiz","Sevilla"
-"Cádiz","Jerez de la Frontera"
-"Cádiz","Málaga"
-"Castellón","Valencia"
-"Castellón","Teruel"
-"Castellón","Madrid"
-"Castellón","Alicante"
-"Ciudad Real","Toledo"
-"Ciudad Real","Madrid"
-"Ciudad Real","Albacete"
-"Ciudad Real","Córdoba"
-"Córdoba","Sevilla"
-"Córdoba","Jaén"
-"Córdoba","Granada"
-"Córdoba","Madrid"
-"Cuenca","Albacete"
-"Cuenca","Madrid"
-"Cuenca","Valencia"
-"Cuenca","Zaragoza"
-"Girona","Barcelona"
-"Girona","Lleida"
-"Girona","Madrid"
-"Granada","Jaén"
-"Granada","Málaga"
-"Granada","Sevilla"
-"Granada","Córdoba"
-"Guadalajara","Madrid"
-"Guadalajara","Zaragoza"
-"Guadalajara","Segovia"
-"Guadalajara","Toledo"
-"Huelva","Sevilla"
-"Huesca","Zaragoza"
-"Huesca","Madrid"
-"Huesca","Barcelona"
-"Jaén","Córdoba"
-"Jaén","Granada"
-"Jaén","Sevilla"
-"León","Palencia"
-"León","Zamora"
-"León","Valladolid"
-"León","Madrid"
-"Lleida","Zaragoza"
-"Lleida","Girona"
-"Lleida","Valencia"
-"Lleida","Barcelona"
-"Lleida","Madrid"
-"Logroño","Burgos"
-"Logroño","Soria"
-"Logroño","Palencia"
-"Logroño","Valladolid"
-"Logroño","Madrid"
-"Lugo","Ourense"
-"Lugo","A Coruña"
-"Lugo","Zamora"
-"Lugo","Madrid"
-"Madrid","Toledo"
-"Madrid","Segovia"
-"Madrid","Guadalajara"
-"Madrid","Valencia"
-"Madrid","Barcelona"
-"Madrid","Bilbao"
-"Málaga","Granada"
-"Málaga","Sevilla"
-"Málaga","Córdoba"
-"Málaga","Valencia"
-"Murcia","Alicante"
-"Murcia","Albacete"
-"Murcia","Madrid"
-"Navarra","Pamplona"
-"Navarra","San Sebastián"
-"Navarra","Zaragoza"
-"Palencia","Valladolid"
-"Palencia","León"
-"Pamplona","Bilbao"
-"Pamplona","San Sebastián"
-"Pamplona","Zaragoza"
-"Pontevedra","A Coruña"
-"Salamanca","Ávila"
-"Salamanca","Valladolid"
-"Salamanca","Madrid"
-"Salamanca","Cáceres"
-"San Sebastián","Vitoria"
-"San Sebastián","Bilbao"
-"San Sebastián","Pamplona"
-"Santander","Bilbao"
-"Segovia","Ávila"
-"Segovia","Madrid"
-"Segovia","Toledo"
-"Sevilla","Cádiz"
-"Sevilla","Córdoba"
-"Sevilla","Granada"
-"Sevilla","Madrid"
-"Sevilla","Málaga"
-"Soria","Zaragoza"
-"Soria","Logroño"
-"Soria","Madrid"
-"Tarragona","Barcelona"
-"Tarragona","Valencia"
-"Tarragona","Lleida"
-"Tarragona","Madrid"
-"Teruel","Zaragoza"
-"Teruel","Castellón"
-"Toledo","Ciudad Real"
-"Toledo","Madrid"
-"Toledo","Segovia"
-"Valencia","Castellón"
-"Valencia","Alicante"
-"Valencia","Barcelona"
-"Valencia","Madrid"
-"Valladolid","León"
-"Valladolid","Palencia"
-"Valladolid","Segovia"
-"Valladolid","Madrid"
-"Vitoria","Bilbao"
-"Vitoria","San Sebastián"
-"Vitoria","Pamplona"
-"Zamora","León"
-"Zamora","Valladolid"
-"Zaragoza","Huesca"
-"Zaragoza","Lleida"
-"Zaragoza","Teruel"
-"Zaragoza","Barcelona"
-"Lisboa","Leiria"
-"Lisboa","Santarém"
-"Lisboa","Setúbal"
-"Lisboa","Faro"
-"Lisboa","Portalegre"
-"Lisboa","Coímbra"
-"Leiria","Lisboa"
-"Leiria","Aveiro"
-"Leiria","Viseu"
-"Santarém","Lisboa"
-"Santarém","Castelo Branco"
-"Setúbal","Lisboa"
-"Setúbal","Évora"
-"Beja","Lisboa"
-"Beja","Faro"
-"Faro","Lisboa"
-"Faro","Beja"
-"Faro","Évora"
-"Évora","Lisboa"
-"Évora","Setúbal"
-"Portalegre","Lisboa"
-"Portalegre","Coímbra"
-"Castelo Branco","Leiria"
-"Castelo Branco","Guarda"
-"Guarda","Coímbra"
-"Coímbra","Lisboa"
-"Coímbra","Portalegre"
-"Coímbra","Aveiro"
-"Aveiro","Leiria"
-"Aveiro","Coímbra"
-"Aveiro","Viseu"
-"Viseu","Aveiro"
-"Viseu","Coímbra"
-"Viseu","Guarda"
-"Bragança","Braga"
-"Bragança","Oporto"
-"Vila Real","Bragança"
-"Oporto","Braga"
-"Oporto","Viana do Castelo"
-"Oporto","Vila Real"
-"Braga","Oporto"
-"Braga","Viana do Castelo"
-"Viana do Castelo","Oporto"
-"Viana do Castelo","Braga"
-"Viana do Castelo","Vila Real"
-"Andorra la Vella","Barcelona"
-"Andorra la Vella","Tarragona"
-"Andorra la Vella","Lleida"
-"Ourense","Bragança"
-"Ourense","Viana do Castelo"
-"Zamora","Bragança"
-"Salamanca","Guarda"
-"Faro","Huelva"
-"Huelva","Badajoz"
-"Évora","Badajoz"
-"Badajoz","Portalegre"
-"Cáceres","Portalegre"
-"Cáceres","Castelo Branco"
-"Vila Real","Guarda"
-"Aveiro","Porto"
-"Vila Real","Viseu"
+Capital_1,Capital_2,Peso
+A Coruña,Lugo,2
+A Coruña,Santiago de Compostela,2
+A Coruña,Ourense,2
+A Coruña,Vigo,3
+A Coruña,Zaragoza,5
+A Coruña,Madrid,5
+A Coruña,Barcelona,5
+Albacete,Ciudad Real,3
+Albacete,Cuenca,2
+Albacete,Valencia,3
+Albacete,Madrid,4
+Albacete,Barcelona,5
+Albacete,Alicante,2
+Alicante,Valencia,2
+Alicante,Murcia,1
+Alicante,Albacete,2
+Alicante,Madrid,4
+Almería,Granada,2
+Almería,Málaga,3
+Almería,Córdoba,4
+Ávila,Segovia,2
+Ávila,Salamanca,3
+Ávila,Madrid,2
+Ávila,Toledo,3
+Barcelona,Girona,2
+Barcelona,Tarragona,2
+Barcelona,Lleida,3
+Barcelona,Madrid,5
+Barcelona,Valencia,4
+Bilbao,Vitoria,2
+Bilbao,San Sebastián,2
+Bilbao,Pamplona,2
+Bilbao,Madrid,5
+Bilbao,Zaragoza,4
+Burgos,Valladolid,2
+Burgos,Logroño,2
+Burgos,Palencia,2
+Burgos,Madrid,4
+Burgos,Bilbao,2
+Cáceres,Badajoz,2
+Cáceres,Salamanca,3
+Cáceres,Madrid,4
+Cádiz,Sevilla,2
+Cádiz,Jerez de la Frontera,1
+Cádiz,Málaga,3
+Castellón,Valencia,1
+Castellón,Teruel,2
+Castellón,Madrid,4
+Castellón,Alicante,3
+Ciudad Real,Toledo,2
+Ciudad Real,Madrid,3
+Ciudad Real,Albacete,3
+Ciudad Real,Córdoba,3
+Córdoba,Sevilla,2
+Córdoba,Jaén,2
+Córdoba,Granada,3
+Córdoba,Madrid,4
+Cuenca,Albacete,2
+Cuenca,Madrid,3
+Cuenca,Valencia,3
+Cuenca,Zaragoza,4
+Girona,Barcelona,2
+Girona,Lleida,3
+Girona,Madrid,5
+Granada,Jaén,2
+Granada,Málaga,2
+Granada,Sevilla,3
+Granada,Córdoba,3
+Guadalajara,Madrid,2
+Guadalajara,Zaragoza,4
+Guadalajara,Segovia,3
+Guadalajara,Toledo,3
+Huelva,Sevilla,2
+Huesca,Zaragoza,2
+Huesca,Madrid,4
+Huesca,Barcelona,5
+Jaén,Córdoba,2
+Jaén,Granada,2
+Jaén,Sevilla,3
+León,Palencia,2
+León,Zamora,2
+León,Valladolid,3
+León,Madrid,4
+Lleida,Zaragoza,3
+Lleida,Girona,3
+Lleida,Valencia,4
+Lleida,Barcelona,2
+Lleida,Madrid,5
+Logroño,Burgos,2
+Logroño,Soria,2
+Logroño,Palencia,3
+Logroño,Valladolid,3
+Logroño,Madrid,4
+Lugo,Ourense,2
+Lugo,A Coruña,2
+Lugo,Zamora,3
+Lugo,Madrid,5
+Madrid,Toledo,2
+Madrid,Segovia,2
+Madrid,Guadalajara,2
+Madrid,Valencia,4
+Madrid,Barcelona,5
+Madrid,Bilbao,5
+Málaga,Granada,2
+Málaga,Sevilla,3
+Málaga,Córdoba,3
+Málaga,Valencia,5
+Murcia,Alicante,1
+Murcia,Albacete,2
+Murcia,Madrid,4
