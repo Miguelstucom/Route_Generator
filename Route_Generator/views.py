@@ -58,13 +58,13 @@ def mostrar_mapa(request):
 
     mensaje = ""
     if request.method == 'POST':
-        ciudad_origen = request.POST.get('ciudad_origen', None)
+        ciudad_origen = 'Mataró'
         ciudad_destino = request.POST.get('ciudad_destino', None)
 
         if ciudad_origen and ciudad_destino:
             ruta, distancia = obtener_ruta_mas_corta(ciudad_origen, ciudad_destino)
             if ruta:
-                mensaje = f"La ruta más corta entre {ciudad_origen} y {ciudad_destino} es: {ruta} con una distancia de {distancia} km."
+                mensaje = f"La ruta más corta entre {ciudad_origen} y {ciudad_destino} es: {ruta}"
                 for i in range(len(ruta) - 1):
                     capital1 = ruta[i]
                     capital2 = ruta[i + 1]

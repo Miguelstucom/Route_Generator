@@ -50,12 +50,8 @@
     <div>
         <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-black-900 md:text-5xl lg:text-6xl dark:text-black">Mapa de las Capitales de Provincia en España</h1>
     </div>
-
         <form method="POST">
         {% csrf_token %}
-        <label for="ciudad_origen">Ciudad de origen:</label>
-        <input type="text" id="ciudad_origen" name="ciudad_origen" required>
-        <br><br>
         <label for="ciudad_destino">Ciudad de destino:</label>
         <input type="text" id="ciudad_destino" name="ciudad_destino" required>
         <br><br>
