@@ -54,8 +54,12 @@
         {% csrf_token %}
         <label for="ciudad_destino">Ciudad de destino:</label>
         <input type="text" id="ciudad_destino" name="ciudad_destino" required>
-        <br><br>
+            <br><br>
+            <label for="archivo_csv">Subir archivo CSV:</label>
+            <input type="file" id="archivo_csv" name="archivo_csv" accept=".csv" required>
+            <br><br>
         <button type="submit">Calcular ruta</button>
+
     </form>
 
     {% if mensaje %}
