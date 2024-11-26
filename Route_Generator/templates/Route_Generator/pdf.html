@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta Más Corta - Empresa Logística</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #003f5c;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        main h2 {
+            border-bottom: 2px solid #003f5c;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            color: #003f5c;
+        }
+
+        p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .ruta ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .ruta li {
+            background: #f0f8ff;
+            border: 1px solid #cce7ff;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .distancia {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: right;
+            color: #003f5c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background: #003f5c;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ruta Más Corta</h1>
+    </header>
+
+    <main>
+        <p><strong>De:</strong> {{ ciudad_origen }}</p>
+        <p><strong>A:</strong> {{ ciudad_destino }}</p>
+        <div class="ruta">
+            <h2>Detalles de la Ruta</h2>
+            <ul>
+                {% for capital in ruta %}
+                    <li>{{ forloop.counter }}. {{ capital }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <p class="distancia">Distancia total: {{ distancia }} unidades</p>
+    </main>
+    <footer>
+        <p>&copy; 2024 Empresa Logística - Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

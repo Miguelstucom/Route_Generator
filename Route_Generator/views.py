@@ -1,7 +1,12 @@
 import pandas as pd
 import folium
 import networkx as nx
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from django.http import HttpResponse
 from django.shortcuts import render
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 def main_view(request):
     return render(request, 'Route_Generator/index.html')
 
@@ -56,7 +61,6 @@ def mostrar_mapa(request):
         except nx.NetworkXNoPath:
             return None, None
 
-    mensaje = ""
     if request.method == 'POST':
         ciudad_origen = 'Mataró'
         ciudad_destino = request.POST.get('ciudad_destino', None)
@@ -64,37 +68,30 @@ def mostrar_mapa(request):
         if ciudad_origen and ciudad_destino:
             ruta, distancia = obtener_ruta_mas_corta(ciudad_origen, ciudad_destino)
             if ruta:
-                mensaje = f"La ruta más corta entre {ciudad_origen} y {ciudad_destino} es: {ruta}"
-                for i in range(len(ruta) - 1):
-                    capital1 = ruta[i]
-                    capital2 = ruta[i + 1]
-                    coord1 = coordinates[capital1]
-                    coord2 = coordinates[capital2]
+                html_content = render_to_string('Route_Generator/pdf.html', {
+                    'ciudad_origen': ciudad_origen,
+                    'ciudad_destino': ciudad_destino,
+                    'ruta': ruta,
+                    'distancia': distancia
+                })
 
-                    folium.PolyLine(
-                        locations=[coord1, coord2],
-                        color="red",
-                        weight=4,
-                        opacity=1
-                    ).add_to(mapa)
+                response = HttpResponse(content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="ruta_{ciudad_origen}_{ciudad_destino}.pdf"'
 
-                    folium.Marker(
-                        location=coord1,
-                        popup=f"{capital1} en la ruta",
-                        icon=folium.Icon(color="red", icon="info-sign")
-                    ).add_to(mapa)
+                pisa_status = pisa.CreatePDF(html_content, dest=response)
 
-                folium.Marker(
-                    location=coordinates[ruta[-1]],
-                    popup=f"{ruta[-1]} - Destino",
-                    icon=folium.Icon(color="red", icon="info-sign")
-                ).add_to(mapa)
+                if pisa_status.err:
+                    return HttpResponse(f"Error al generar el PDF: {pisa_status.err}")
+
+                return response
             else:
                 mensaje = f"No hay ruta disponible entre {ciudad_origen} y {ciudad_destino}."
+                return render(request, 'Route_Generator/index.html', {'mensaje': mensaje})
         else:
             mensaje = "Por favor, ingrese dos ciudades para calcular la ruta."
+            return render(request, 'Route_Generator/index.html', {'mensaje': mensaje})
 
     map_path = "Route_Generator/static/mapas/mapa_espana.html"
     mapa.save(map_path)
 
-    return render(request, 'Route_Generator/index.html', {'map_path': map_path, 'mensaje': mensaje})
+    return render(request, 'Route_Generator/index.html', {'map_path': map_path})
