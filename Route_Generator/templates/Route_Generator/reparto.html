@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimización de Reparto</title>
+</head>
+<body>
+    <h1>Optimización de Reparto</h1>
+
+    {% for camion_data in camiones_con_indices %}
+        <h2>Camión {{ camion_data.indice }}</h2>
+        <ul>
+            {% for pedido in camion_data.camion %}
+                <li>
+                    Pedido ID: {{ pedido.id }}<br>
+                    Ciudad Destino: {{ pedido.ciudad_destino.nombre }}<br>
+                    Peso: {{ pedido.cantidad }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h3>Ruta Completa:</h3>
+        <p>{{ camion_data.ruta|join:" → " }}</p>
+    {% endfor %}
+</body>
+</html>

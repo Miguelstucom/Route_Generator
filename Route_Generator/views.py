@@ -5,10 +5,73 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from django.http import HttpResponse
 from django.shortcuts import render
+from datetime import date
+from .models import Pedido, Ciudad, Conexion
+from .utils import agrupar_pedidos, calcular_ruta_optima, filtrar_pedidos_validos
+from .utils import calcular_ruta_mas_corta, agrupar_pedidos, verificar_restricciones_tiempo, optimizar_camiones,algoritmo_genetico
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 def main_view(request):
     return render(request, 'Route_Generator/index.html')
+
+
+def precargar_distancias(conexiones_file):
+    """Precalcula las distancias entre todas las ciudades usando Dijkstra."""
+    conexiones_data = pd.read_csv(conexiones_file)
+    G = nx.Graph()
+
+    for _, row in conexiones_data.iterrows():
+        capital1 = row["Capital_1"].strip()
+        capital2 = row["Capital_2"].strip()
+        peso = float(row["Peso"])
+        G.add_edge(capital1, capital2, weight=peso)
+
+    ciudades = list(G.nodes())
+    distancias = {ciudad: {} for ciudad in ciudades}
+
+    for ciudad in ciudades:
+        paths = nx.single_source_dijkstra_path_length(G, ciudad, weight="weight")
+        for destino, distancia in paths.items():
+            distancias[ciudad][destino] = distancia
+
+    return distancias
+
+
+def optimizar_reparto(request):
+    pedidos = Pedido.objects.all()
+    conexiones_file = "Route_Generator/static/csv/conexion.csv"
+    capacidad_camion = 50
+    distancias = precargar_distancias(conexiones_file)
+
+    # Optimizar los camiones con la función de agrupamiento
+    mejor_solucion = optimizar_camiones(pedidos, capacidad_camion)
+
+    rutas_por_camion = []
+    camiones_con_indices = []
+    for camion_idx, camion in enumerate(mejor_solucion, start=1):
+        destinos = ["Mataró"] + [pedido.ciudad_destino.nombre for pedido in camion] + ["Mataró"]
+
+        # Generar la ruta del camión
+        ruta_completa = []
+        for i in range(len(destinos) - 1):
+            origen = destinos[i]
+            destino = destinos[i + 1]
+            ruta_segmento = calcular_ruta_mas_corta(origen, destino, conexiones_file)
+            ruta_completa.extend(ruta_segmento[:-1])  # Evitar duplicados
+        ruta_completa.append("Mataró")
+        rutas_por_camion.append(ruta_completa)
+
+        # Guardar el camión con índice
+        camiones_con_indices.append({
+            "indice": camion_idx,
+            "camion": camion,
+            "ruta": ruta_completa
+        })
+
+    return render(request, "Route_Generator/reparto.html", {
+        "camiones_con_indices": camiones_con_indices,
+    })
+
 
 
 def mostrar_mapa(request):
@@ -95,3 +158,20 @@ def mostrar_mapa(request):
     mapa.save(map_path)
 
     return render(request, 'Route_Generator/index.html', {'map_path': map_path})
+
+
+def calcular_distancia(origen, destino, conexiones_file):
+    """Devuelve la distancia entre dos ciudades."""
+    conexiones_data = pd.read_csv(conexiones_file)
+    fila = conexiones_data[
+        (conexiones_data["Capital_1"] == origen) & (conexiones_data["Capital_2"] == destino)
+    ]
+    if fila.empty:
+        # Si no se encuentra conexión directa, prueba en el otro sentido
+        fila = conexiones_data[
+            (conexiones_data["Capital_1"] == destino) & (conexiones_data["Capital_2"] == origen)
+        ]
+    if not fila.empty:
+        return float(fila.iloc[0]["Peso"])
+    else:
+        raise ValueError(f"No se encontró conexión entre {origen} y {destino}.")
