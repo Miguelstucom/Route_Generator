@@ -1,111 +1,167 @@
 Capital_1,Capital_2,Peso
-A Coruña,Lugo,2
-A Coruña,Santiago de Compostela,2
-A Coruña,Ourense,2
-A Coruña,Vigo,3
-A Coruña,Zaragoza,5
-A Coruña,Madrid,5
-A Coruña,Barcelona,5
-Albacete,Ciudad Real,3
-Albacete,Cuenca,2
-Albacete,Valencia,3
-Albacete,Madrid,4
-Albacete,Barcelona,5
-Albacete,Alicante,2
-Alicante,Valencia,2
-Alicante,Murcia,1
-Alicante,Albacete,2
-Alicante,Madrid,4
-Almería,Granada,2
-Almería,Málaga,3
-Almería,Córdoba,4
-Ávila,Segovia,2
-Ávila,Salamanca,3
-Ávila,Madrid,2
-Ávila,Toledo,3
-Barcelona,Girona,2
-Barcelona,Tarragona,2
-Barcelona,Lleida,3
-Barcelona,Madrid,5
-Barcelona,Valencia,4
-Bilbao,Vitoria,2
-Bilbao,San Sebastián,2
-Bilbao,Pamplona,2
-Bilbao,Madrid,5
-Bilbao,Zaragoza,4
-Burgos,Valladolid,2
-Burgos,Logroño,2
-Burgos,Palencia,2
-Burgos,Madrid,4
-Burgos,Bilbao,2
-Cáceres,Badajoz,2
-Cáceres,Salamanca,3
-Cáceres,Madrid,4
-Cádiz,Sevilla,2
-Cádiz,Jerez de la Frontera,1
-Cádiz,Málaga,3
-Castellón,Valencia,1
-Castellón,Teruel,2
-Castellón,Madrid,4
-Castellón,Alicante,3
-Ciudad Real,Toledo,2
-Ciudad Real,Madrid,3
-Ciudad Real,Albacete,3
-Ciudad Real,Córdoba,3
-Córdoba,Sevilla,2
-Córdoba,Jaén,2
-Córdoba,Granada,3
-Córdoba,Madrid,4
-Cuenca,Albacete,2
-Cuenca,Madrid,3
-Cuenca,Valencia,3
-Cuenca,Zaragoza,4
-Girona,Barcelona,2
-Girona,Lleida,3
-Girona,Madrid,5
-Granada,Jaén,2
-Granada,Málaga,2
-Granada,Sevilla,3
-Granada,Córdoba,3
-Guadalajara,Madrid,2
-Guadalajara,Zaragoza,4
-Guadalajara,Segovia,3
-Guadalajara,Toledo,3
-Huelva,Sevilla,2
-Huesca,Zaragoza,2
-Huesca,Madrid,4
-Huesca,Barcelona,5
-Jaén,Córdoba,2
-Jaén,Granada,2
-Jaén,Sevilla,3
-León,Palencia,2
-León,Zamora,2
-León,Valladolid,3
-León,Madrid,4
-Lleida,Zaragoza,3
-Lleida,Girona,3
-Lleida,Valencia,4
-Lleida,Barcelona,2
-Lleida,Madrid,5
-Logroño,Burgos,2
-Logroño,Soria,2
-Logroño,Palencia,3
-Logroño,Valladolid,3
-Logroño,Madrid,4
-Lugo,Ourense,2
-Lugo,A Coruña,2
-Lugo,Zamora,3
-Lugo,Madrid,5
-Madrid,Toledo,2
-Madrid,Segovia,2
-Madrid,Guadalajara,2
-Madrid,Valencia,4
-Madrid,Barcelona,5
-Madrid,Bilbao,5
-Málaga,Granada,2
-Málaga,Sevilla,3
-Málaga,Córdoba,3
-Málaga,Valencia,5
-Murcia,Alicante,1
-Murcia,Albacete,2
-Murcia,Madrid,4
+A Coruña,Lugo,90
+A Coruña,Pontevedra,125
+A Coruña,Ourense,150
+Pontevedra,Ourense,90
+Lugo,Ourense,120
+Pontevedra,Lugo,135
+Lugo,Oviedo,160
+Lugo,León,135
+Ourense,León,175
+León,Oviedo,120
+Ourense,Zamora,120
+León,Zamora,140
+Palencia,León,100
+Valladolid,León,130
+Burgos,Palencia,90
+León,Burgos,160
+Zamora,Salamanca,65
+Segovia,Valladolid,95
+Salamanca,Ávila,105
+Zamora,Valladolid,110
+Salamanca,Segovia,150
+Salamanca,Valladolid,115
+Ávila,Segovia,75
+Oviedo,Santander,200
+León,Santander,170
+Santander,Burgos,120
+Valladolid,Palencia,50
+Burgos,Segovia,150
+Soria,Valladolid,130
+Burgos,Soria,90
+Segovia,Madrid,90
+Ávila,Madrid,115
+Guadalajara,Madrid,65
+Toledo,Madrid,75
+Ávila,Toledo,115
+Guadalajara,Soria,135
+Cáceres,Toledo,185
+Salamanca,Cáceres,100
+Ávila,Cáceres,130
+Toledo,Cuenca,155
+Madrid,Cuenca,165
+Guadalajara,Cuenca,140
+Toledo,Ciudad Real,115
+Cáceres,Badajoz,90
+Badajoz,Ciudad Real,200
+Albacete,Ciudad Real,190
+Cuenca,Albacete,160
+Albacete,Toledo,195
+Castellón,Valencia,75
+Valencia,Teruel,140
+Valencia,Albacete,150
+Teruel,Cuenca,135
+Cuenca,Valencia,160
+Alicante,Albacete,85
+Murcia,Alicante,80
+Murcia,Albacete,135
+Valencia,Alicante,125
+Teruel,Albacete,150
+Murcia,Almería,220
+Murcia,Granada,275
+Murcia,Jaén,230
+Jaén,Granada,95
+Granada,Almería,110
+Jaén,Albacete,220
+Jaén,Ciudad Real,180
+Ciudad Real,Córdoba,120
+Córdoba,Jaén,110
+Córdoba,Sevilla,140
+Málaga,Córdoba,160
+Málaga,Granada,125
+Málaga,Almería,205
+Sevilla,Málaga,215
+Huelva,Sevilla,100
+Cádiz,Huelva,150
+Cádiz,Sevilla,120
+Cádiz,Málaga,230
+Sevilla,Badajoz,210
+Cáceres,Sevilla,250
+Toledo,Sevilla,330
+Badajoz,Huelva,240
+Zaragoza,Huesca,75
+Huesca,Andorra la Vella,250
+Zaragoza,Teruel,180
+Zaragoza,Lleida,150
+Lleida,Tarragona,95
+Tarragona,Castellón,150
+Lleida,Teruel,160
+Zaragoza,Soria,170
+Soria,Teruel,185
+Zaragoza,Guadalajara,260
+Lleida,Girona,200
+Tarragona,Barcelona,100
+Mataró,Barcelona,30
+Girona,Mataró,100
+Barcelona,Lleida,150
+Girona,Andorra la Vella,140
+Huesca,Lleida,110
+Andorra,Lleida,120
+Logroño,Burgos,135
+Logroño,Zaragoza,165
+Logroño,Soria,95
+Logroño,Huesca,210
+Pamplona,Huesca,150
+Logroño,Pamplona,85
+Vitoria,Pamplona,95
+Bilbao,Santander,100
+Bilbao,Burgos,120
+Burgos,Vitoria,115
+Bilbao,Vitoria,65
+Pamplona,Bilbao,115
+Pamplona,San Sebastián,80
+Bilbao,San Sebastián,100
+Vitoria,San Sebastián,75
+Pamplona,Andorra la Vella,260
+Segovia,Guadalajara,140
+Pontevedra,Viana do Castelo,170
+Ourense,Viana do Castelo,120
+Viana do Castelo,Braga,50
+Braga,Vila Real,90
+Vila Real,Bragança,100
+Bragança,Braga,140
+Vila Real,Ourense,130
+Salamanca,Guarda,100
+Viseu,Guarda,85
+Bragança,Guarda,120
+Bragança,Viseu,150
+Viseu,Oporto,120
+Braga,Oporto,60
+Vila Real,Oporto,85
+Oporto,Aveiro,75
+Viana do Castelo,Oporto,75
+Vila Real,Viseu,75
+Aveiro,Coímbra,70
+Aveiro,Viseu,80
+Coímbra,Viseu,80
+Guarda,Coímbra,100
+Guarda,Castelo Branco,90
+Castelo Branco,Leiria,130
+Coímbra,Leiria,70
+Cáceres,Portalegre,90
+Badajoz,Évora,120
+Cáceres,Castelo Branco,140
+Castelo Branco,Portalegre,80
+Portalegre,Badajoz,80
+Huelva,Faro,120
+Faro,Beja,80
+Faro,Setúbal,220
+Beja,Évora,80
+Évora,Setúbal,100
+Lisboa,Setúbal,50
+Santarém,Lisboa,75
+Leiria,Santarém,65
+Santarém,Portalegre,110
+Castelo Branco,Santarém,130
+Madrid,Cáceres,300
+Madrid,Albacete,250
+Madrid,Jaén,320
+Cuenca,Jaén,260
+Santarém,Setúbal,75
+Lleida,Castellón,200
+Mataró,Lleida,190
+Andorra la Vella,Lleida,120
+Oviedo,A Coruña,215
+Ourense,Bragança,120
+Zamora,Bragança,105
+Bragança,León,160
