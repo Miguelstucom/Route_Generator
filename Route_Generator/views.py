@@ -44,7 +44,7 @@ def optimizar_reparto(request):
     distancias = precargar_distancias(conexiones_file)
 
     # Optimizar los camiones con la función de agrupamiento
-    mejor_solucion = optimizar_camiones(pedidos, capacidad_camion)
+    mejor_solucion = optimizar_camiones(pedidos, capacidad_camion,distancias)
 
     rutas_por_camion = []
     camiones_con_indices = []

@@ -209,26 +209,40 @@ def calcular_ruta_mas_corta(origen, destino, conexiones_file):
 
 
 
-def agrupar_pedidos(pedidos, capacidad_camion):
-    """Agrupa pedidos en camiones basados en la capacidad."""
+def agrupar_pedidos(pedidos, capacidad_camion, distancias):
+    """
+    Agrupa pedidos en camiones considerando la capacidad del camión y la proximidad de los destinos.
+    :param pedidos: Lista de pedidos.
+    :param capacidad_camion: Capacidad máxima de cada camión.
+    :param distancias: Diccionario de distancias entre ciudades {ciudad1: {ciudad2: distancia}}.
+    :return: Lista de camiones (cada camión es una lista de pedidos).
+    """
+    pedidos = sorted(pedidos, key=lambda p: p.ciudad_destino.nombre)  # Ordenar por destino
     camiones = []
-    camion_actual = []
-    peso_actual = 0
 
-    for pedido in pedidos:
-        peso_pedido = pedido.cantidad  # Suponiendo que cantidad = peso
-        if peso_actual + peso_pedido <= capacidad_camion:
-            camion_actual.append(pedido)
-            peso_actual += peso_pedido
-        else:
-            camiones.append(camion_actual)
-            camion_actual = [pedido]
-            peso_actual = peso_pedido
+    while pedidos:
+        camion_actual = []
+        peso_actual = 0
+        pedido_base = pedidos.pop(0)  # Toma el primer pedido como base
+        camion_actual.append(pedido_base)
+        peso_actual += pedido_base.cantidad
 
-    if camion_actual:
+        proximos = sorted(
+            pedidos,
+            key=lambda p: distancias[pedido_base.ciudad_destino.nombre][p.ciudad_destino.nombre]
+        )
+
+        for pedido in proximos[:]:  # Iterar sobre una copia de la lista
+            peso_pedido = pedido.cantidad
+            if peso_actual + peso_pedido <= capacidad_camion:
+                camion_actual.append(pedido)
+                peso_actual += peso_pedido
+                pedidos.remove(pedido)
+
         camiones.append(camion_actual)
 
     return camiones
+
 
 
 
@@ -243,7 +257,7 @@ def verificar_restricciones_tiempo(pedidos, productos):
     return pedidos_validos
 
 
-def optimizar_camiones(pedidos, capacidad_camion):
+def optimizar_camiones(pedidos, capacidad_camion,distancia):
     """Usa un algoritmo genético para minimizar el número de camiones."""
     # Placeholder para implementar algoritmo genético.
-    return agrupar_pedidos(pedidos, capacidad_camion)
+    return agrupar_pedidos(pedidos, capacidad_camion,distancia)
