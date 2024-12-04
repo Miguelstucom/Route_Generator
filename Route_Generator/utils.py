@@ -159,7 +159,7 @@ def calcular_ruta_optima(camion, conexiones_file, origen="Mataró"):
 
 
 
-def calcular_ruta_mas_corta(origen, destino, conexiones_file):
+def calcular_ruta_mas_corta(origen, destino, conexiones_file, fecha_envio, fecha_limite):
     """
     Calcula la ruta más corta usando NetworkX.
 
@@ -206,6 +206,20 @@ def calcular_ruta_mas_corta(origen, destino, conexiones_file):
         return nx.shortest_path(G, source=origen, target=destino, weight="weight")
     except nx.NetworkXNoPath:
         raise ValueError(f"No se pudo calcular una ruta entre '{origen}' y '{destino}'.")
+
+    peso_total = 0
+    for i in range(len(ruta) - 1):  # Recorrer nodos consecutivos en la ruta
+        nodo_actual = ruta[i]
+        nodo_siguiente = ruta[i + 1]
+        peso_total += G[nodo_actual][nodo_siguiente]["weight"]  # Sumar peso de la arista
+
+    # Verificar si la ruta excede el tiempo de caducidad
+    tiempo_total_estimado = fecha_envio + timedelta(hours=peso_total)
+
+    if tiempo_total_estimado > fecha_limite:
+        raise ValueError(
+            f"La ruta más corta excede el tiempo de caducidad. Peso total: {peso_total} horas, tiempo de caducidad: {fecha_limite}."
+        )
 
 
 

@@ -50,30 +50,31 @@ def optimizar_reparto(request):
     conexiones_file = "Route_Generator/static/csv/conexion.csv"
     capacidad_camion = 50
     distancias = precargar_distancias(conexiones_file)
+    velocidad_media = 120
 
-    # Optimizar los camiones con la función de agrupamiento
+    for key, value in distancias.items():
+        if "peso" in value:
+            value["peso"] /= velocidad_media
+    # km/h
     mejor_solucion = optimizar_camiones(pedidos, capacidad_camion, distancias)
 
-    # Inicializar las variables de fechas en None o con valores extremos adecuados
     fecha_limite_minima = None
     fecha_disponible_maxima = None
 
-    # Recorrer los pedidos en el camión
-    for pedido in camion:
-        # Obtener las fechas de cada pedido
-        fecha_limite = Pedido.fecha_limite_entrega(pedido)
-        fecha_envio = Pedido.fecha_disponible(pedido)
+    for camion in mejor_solucion:
+        for pedido in camion:
+            fecha_limite = Pedido.fecha_limite_entrega(pedido)
+            fecha_envio = Pedido.fecha_disponible(pedido)
 
-        # Comparar y encontrar la fecha límite más pequeña
-        if fecha_limite_minima is None or fecha_limite < fecha_limite_minima:
-            fecha_limite_minima = fecha_limite
+            if fecha_limite_minima is None or fecha_limite < fecha_limite_minima:
+                fecha_limite_minima = fecha_limite
 
-        # Comparar y encontrar la fecha de envío más grande
-        if fecha_disponible_maxima is None or fecha_envio > fecha_disponible_maxima:
-            fecha_disponible_maxima = fecha_envio
+            if fecha_disponible_maxima is None or fecha_envio > fecha_disponible_maxima:
+                fecha_disponible_maxima = fecha_envio
 
     rutas_por_camion = []
     camiones_con_indices = []
+
     for camion_idx, camion in enumerate(mejor_solucion, start=1):
         destinos = (
             ["Mataró"]
@@ -86,12 +87,11 @@ def optimizar_reparto(request):
         for i in range(len(destinos) - 1):
             origen = destinos[i]
             destino = destinos[i + 1]
-            ruta_segmento = calcular_ruta_mas_corta(origen, destino, conexiones_file)
+            ruta_segmento = calcular_ruta_mas_corta(origen, destino, conexiones_file, fecha_limite_minima,fecha_disponible_maxima  )
             ruta_completa.extend(ruta_segmento[:-1])  # Evitar duplicados
         ruta_completa.append("Mataró")
         rutas_por_camion.append(ruta_completa)
 
-        # Guardar el camión con índice
         camiones_con_indices.append(
             {"indice": camion_idx, "camion": camion, "ruta": ruta_completa}
         )
@@ -103,6 +103,7 @@ def optimizar_reparto(request):
             "camiones_con_indices": camiones_con_indices,
         },
     )
+
 
 
 def mostrar_mapa(request):
