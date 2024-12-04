@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error de Optimización</title>
+</head>
+<body>
+    <h1>Error en la Optimización de Reparto</h1>
+    <p>{{ mensaje }}</p>
+
+    {% if rutas_viables_info %}
+        <h2>Errores encontrados:</h2>
+        <ul>
+            {% for error in rutas_viables_info %}
+                <li>Camión {{ error.camion_idx }}: De {{ error.origen }} a {{ error.destino }} - {{ error.mensaje }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
