@@ -8,14 +8,13 @@ class Command(BaseCommand):
     help = 'Importa datos desde CSV a los modelos, borrando datos previos'
 
     def handle(self, *args, **kwargs):
-        self.borrar_datos_antiguos()  # Borrar datos antes de importar nuevos
+        self.borrar_datos_antiguos()
         self.importar_ciudades()
         self.importar_conexiones()
         self.importar_productos()
         self.importar_pedidos()
 
     def borrar_datos_antiguos(self):
-        """Elimina todos los datos previos de las tablas relevantes."""
         Pedido.objects.all().delete()
         self.stdout.write(self.style.WARNING('Pedidos eliminados.'))
 
@@ -33,7 +32,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile)
             for row in reader:
                 Ciudad.objects.get_or_create(
-                    id=int(row["id"]),  # Asegúrate de mapear el ID explícitamente
+                    id=int(row["id"]),
                     nombre=row["Capital"],
                     provincia=row["Provincia"],
                     latitud=float(row["Latitud"].replace(",", ".")),
@@ -44,10 +43,9 @@ class Command(BaseCommand):
     def importar_conexiones(self):
         with open('Route_Generator/static/csv/conexion.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
-            faltantes = set()  # Conjunto para recolectar ciudades faltantes
+            faltantes = set()
             for row in reader:
                 try:
-                    # Normaliza los nombres antes de buscar
                     origen = Ciudad.objects.get(nombre=row["Capital_1"].strip())
                     destino = Ciudad.objects.get(nombre=row["Capital_2"].strip())
                     Conexion.objects.get_or_create(
@@ -56,11 +54,9 @@ class Command(BaseCommand):
                         peso=float(row["Peso"])
                     )
                 except Ciudad.DoesNotExist as e:
-                    # Agrega las ciudades faltantes al conjunto
                     faltantes.add(row["Capital_1"].strip())
                     faltantes.add(row["Capital_2"].strip())
 
-            # Imprime las ciudades faltantes
             if faltantes:
                 self.stdout.write(self.style.ERROR("Ciudades faltantes:"))
                 for ciudad in faltantes:
@@ -76,7 +72,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile)
             for row in reader:
                 Producto.objects.update_or_create(
-                    id=int(row["Identificador del producto"]),  # Asegúrate de mapear el ID explícitamente
+                    id=int(row["Identificador del producto"]),
                     defaults={
                         "nombre": row["Nombre"],
                         "precio_venta": float(row["Precio Venta"].replace(",", ".")),
@@ -95,14 +91,14 @@ class Command(BaseCommand):
                 except Producto.DoesNotExist:
                     self.stdout.write(
                         self.style.ERROR(f"Producto con ID {row['id producto']} no encontrado. Pedido omitido."))
-                    continue  # Salta al siguiente registro
+                    continue
 
                 ciudad_id = int(row["Identificador cliente"])
                 try:
                     ciudad_destino = Ciudad.objects.get(id=ciudad_id)
                 except Ciudad.DoesNotExist:
                     self.stdout.write(self.style.ERROR(f"Ciudad con ID {ciudad_id} no encontrada en la base de datos."))
-                    continue  # Salta al siguiente registro
+                    continue
 
                 Pedido.objects.get_or_create(
                     fecha_pedido=datetime.strptime(row["Fecha del pedido"], "%Y-%m-%d").date(),

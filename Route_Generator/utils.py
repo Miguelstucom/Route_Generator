@@ -60,15 +60,12 @@ def calcular_aptitud(individuo, distancias, origen="Mataró"):
 
 
 def seleccion(poblacion, distancias):
-    """Selecciona los mejores individuos basados en la aptitud."""
     aptitudes = [(individuo, calcular_aptitud(individuo, distancias)) for individuo in poblacion]
     aptitudes.sort(key=lambda x: x[1])
     return [individuo for individuo, _ in aptitudes[:len(aptitudes) // 2]]
 
 
 def cruzamiento(padre1, padre2):
-    """Realiza cruzamiento entre dos individuos."""
-    # Desanidar si están envueltos en una lista adicional
     if isinstance(padre1[0], list):
         padre1 = padre1[0]
     if isinstance(padre2[0], list):
@@ -80,7 +77,7 @@ def cruzamiento(padre1, padre2):
         return hijo
     else:
         print("Error: los individuos no tienen longitud suficiente para el cruce.")
-        return padre1  # O manejarlo de otra forma.
+        return padre1
 
 
 def mutacion(individuo, probabilidad_mutacion):
@@ -107,7 +104,6 @@ def algoritmo_genetico(pedidos, capacidad_camion, distancias, num_generaciones=1
 
         poblacion = nueva_poblacion
 
-    # Retorna el mejor individuo de la última generación
     mejor_individuo = min(poblacion, key=lambda ind: calcular_aptitud(ind, distancias))
     mejor_costo = calcular_aptitud(mejor_individuo, distancias)
     return mejor_individuo, mejor_costo
@@ -115,7 +111,6 @@ def algoritmo_genetico(pedidos, capacidad_camion, distancias, num_generaciones=1
 
 
 def filtrar_pedidos_validos(pedidos, fecha_actual):
-    """Filtra los pedidos que pueden ser enviados en la fecha actual."""
     pedidos_validos = []
     for pedido in pedidos:
         if pedido.fecha_disponible() <= fecha_actual <= pedido.fecha_limite_entrega():
@@ -123,10 +118,8 @@ def filtrar_pedidos_validos(pedidos, fecha_actual):
     return pedidos_validos
 
 def calcular_ruta_optima(camion, conexiones_file, origen="Mataró"):
-    """Encuentra la ruta óptima para el camión utilizando TSP."""
     conexiones_data = pd.read_csv(conexiones_file)
 
-    # Construir el grafo
     G = nx.Graph()
     for _, row in conexiones_data.iterrows():
         G.add_edge(
@@ -135,18 +128,14 @@ def calcular_ruta_optima(camion, conexiones_file, origen="Mataró"):
             weight=float(row["Peso"])
         )
 
-    # Lista de destinos incluyendo el origen
     destinos = [origen] + [pedido.ciudad_destino.nombre for pedido in camion]
 
-    # Calcular todas las permutaciones de rutas posibles
     rutas_posibles = permutations(destinos)
 
-    # Encontrar la ruta con menor distancia
     mejor_ruta = None
     menor_distancia = float('inf')
 
     for ruta in rutas_posibles:
-        # Calcular la distancia de la ruta
         distancia = sum(
             nx.shortest_path_length(G, source=ruta[i], target=ruta[i+1], weight="weight")
             for i in range(len(ruta) - 1)
@@ -160,48 +149,33 @@ def calcular_ruta_optima(camion, conexiones_file, origen="Mataró"):
 
 
 def calcular_ruta_mas_corta(origen, destino, conexiones_file):
-    """
-    Calcula la ruta más corta usando NetworkX.
-
-    :param origen: Nodo de origen (str).
-    :param destino: Nodo de destino (str).
-    :param conexiones_file: Ruta al archivo CSV con las conexiones.
-    :return: Lista de nodos que forman la ruta más corta.
-    """
     import pandas as pd
     import networkx as nx
 
-    # Validar que origen y destino sean cadenas
     if not isinstance(origen, str):
         raise TypeError(f"El nodo origen debe ser una cadena, pero es {type(origen)}.")
     if not isinstance(destino, str):
         raise TypeError(f"El nodo destino debe ser una cadena, pero es {type(destino)}.")
 
-    # Cargar las conexiones desde el archivo CSV
     conexiones_data = pd.read_csv("Route_Generator/static/csv/conexion.csv")
 
-    # Construir el grafo
     G = nx.Graph()
 
     for i, row in conexiones_data.iterrows():
-        capital1 = str(row["Capital_1"]).strip()  # Convertir a cadena y quitar espacios
+        capital1 = str(row["Capital_1"]).strip()
         capital2 = str(row["Capital_2"]).strip()
-        peso = float(row["Peso"])  # Asegurar que el peso es un número flotante
+        peso = float(row["Peso"])
 
-        # Añadir la arista al grafo
         G.add_edge(capital1, capital2, weight=peso)
 
-    # Validar nodos en el grafo
     if origen not in G.nodes:
         raise ValueError(f"El nodo origen '{origen}' no existe en el grafo.")
     if destino not in G.nodes:
         raise ValueError(f"El nodo destino '{destino}' no existe en el grafo.")
 
-    # Verificar si hay un camino entre los nodos
     if not nx.has_path(G, origen, destino):
         raise ValueError(f"No hay conexión entre '{origen}' y '{destino}'.")
 
-    # Calcular y devolver la ruta más corta
     try:
         return nx.shortest_path(G, source=origen, target=destino, weight="weight")
     except nx.NetworkXNoPath:
@@ -210,20 +184,13 @@ def calcular_ruta_mas_corta(origen, destino, conexiones_file):
 
 
 def agrupar_pedidos(pedidos, capacidad_camion, distancias):
-    """
-    Agrupa pedidos en camiones considerando la capacidad del camión y la proximidad de los destinos.
-    :param pedidos: Lista de pedidos.
-    :param capacidad_camion: Capacidad máxima de cada camión.
-    :param distancias: Diccionario de distancias entre ciudades {ciudad1: {ciudad2: distancia}}.
-    :return: Lista de camiones (cada camión es una lista de pedidos).
-    """
-    pedidos = sorted(pedidos, key=lambda p: p.ciudad_destino.nombre)  # Ordenar por destino
+    pedidos = sorted(pedidos, key=lambda p: p.ciudad_destino.nombre)
     camiones = []
 
     while pedidos:
         camion_actual = []
         peso_actual = 0
-        pedido_base = pedidos.pop(0)  # Toma el primer pedido como base
+        pedido_base = pedidos.pop(0)
         camion_actual.append(pedido_base)
         peso_actual += pedido_base.cantidad
 
@@ -232,7 +199,7 @@ def agrupar_pedidos(pedidos, capacidad_camion, distancias):
             key=lambda p: distancias[pedido_base.ciudad_destino.nombre][p.ciudad_destino.nombre]
         )
 
-        for pedido in proximos[:]:  # Iterar sobre una copia de la lista
+        for pedido in proximos[:]:
             peso_pedido = pedido.cantidad
             if peso_actual + peso_pedido <= capacidad_camion:
                 camion_actual.append(pedido)
@@ -259,5 +226,4 @@ def verificar_restricciones_tiempo(pedidos, productos):
 
 def optimizar_camiones(pedidos, capacidad_camion,distancia):
     """Usa un algoritmo genético para minimizar el número de camiones."""
-    # Placeholder para implementar algoritmo genético.
     return agrupar_pedidos(pedidos, capacidad_camion,distancia)

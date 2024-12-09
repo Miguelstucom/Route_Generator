@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrada de Variables</title>
+</head>
+<body>
+    <h1>Entrada de Datos</h1>
+    <form action="resultado.html" method="get">
+        <label for="velocidad">Velocidad Media (km/h):</label>
+        <input type="number" id="velocidad" name="velocidad" step="0.01" required>
+        <br><br>
+
+        <label for="coste">Coste Medio por km (€):</label>
+        <input type="number" id="coste" name="coste" step="0.01" required>
+        <br><br>
+
+        <label for="capacidad">Capacidad del Camión (kg):</label>
+        <input type="number" id="capacidad" name="capacidad" step="0.01" required>
+        <br><br>
+
+        <button type="submit">Calcular</button>
+    </form>
+</body>
+</html>
