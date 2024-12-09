@@ -187,7 +187,7 @@ def calcular_ruta_mas_corta(
             f"El nodo destino debe ser una cadena, pero es {type(destino)}."
         )
 
-    velocidad_media = 120.0
+    velocidad_media = 60.0
     conexiones_data = pd.read_csv(conexiones_file)
 
     # Construir el grafo

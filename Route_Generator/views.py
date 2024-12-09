@@ -72,7 +72,7 @@ def optimizar_reparto(request):
         fecha_limite_minima = None
         fecha_disponible_maxima = None
 
-        # Determinar las fechas límite y disponibles en global
+        # Determinar las fechas límite y disponibles globalmente
         for camion in mejor_solucion:
             for pedido in camion:
                 fecha_limite = pedido.fecha_limite_entrega()
@@ -95,7 +95,6 @@ def optimizar_reparto(request):
 
         # Iterar por cada camión de la solución
         for camion_idx, camion in enumerate(mejor_solucion, start=1):
-            # Calcular fechas límite y disponible para ESTE camión
             fecha_limite_minima_camion = None
             fecha_disponible_maxima_camion = None
 
@@ -120,7 +119,7 @@ def optimizar_reparto(request):
             )
 
             ruta_completa = []
-            tiempo_total = 0.0
+            tiempo_total = 0.0  # Tiempo total de conducción (sin descansos)
 
             for i in range(len(destinos) - 1):
                 origen = destinos[i]
@@ -149,16 +148,24 @@ def optimizar_reparto(request):
                             "mensaje": "Ruta no viable",
                         }
                     )
-                    break  # Rompe el for de destinos
+                    break
 
             if not rutas_viables:
-                break  # Rompe el for de camiones para reintentar
+                break
 
             ruta_completa.append("Mataró")
             rutas_por_camion.append(ruta_completa)
             camiones_con_indices.append(
                 {"indice": camion_idx, "camion": camion, "ruta": ruta_completa}
             )
+
+            # **Cálculo de descansos**
+            bloques_8h = int(tiempo_total // 8)
+            if tiempo_total % 8 == 0 and bloques_8h > 0:
+                bloques_8h -= 1
+
+            tiempo_descanso = bloques_8h * 16
+            tiempo_total_con_descanso = tiempo_total + tiempo_descanso
 
             # Calcular tiempo límite por camión
             if (
@@ -175,23 +182,30 @@ def optimizar_reparto(request):
             else:
                 tiempo_limite = float("inf")
 
+            # Verificar si cumple con el límite teniendo en cuenta los descansos
+            if tiempo_total_con_descanso > tiempo_limite:
+                rutas_viables = False
+                viabilidad_rutas.append(
+                    {
+                        "camion_idx": camion_idx,
+                        "mensaje": "La ruta excede el tiempo límite considerando descansos",
+                    }
+                )
+                break  # Salir del bucle de camiones para reintentar con otra configuración
+
             tiempos_rutas.append(
                 {
                     "camion_idx": camion_idx,
-                    "tiempo_estimado": tiempo_total,
+                    "tiempo_estimado": tiempo_total_con_descanso,
                     "tiempo_limite": tiempo_limite,
                     "tiempo_previsto": fecha_disponible_maxima_camion,
-                    "mensaje": (
-                        "Ruta dentro del límite"
-                        if tiempo_total <= tiempo_limite
-                        else "Ruta excede el límite"
-                    ),
+                    "mensaje": "Ruta dentro del límite",
                 }
             )
 
-        # Una vez procesados todos los camiones
+        # Una vez procesados todos los camiones, si rutas_viables sigue siendo True es que todas cumplieron el límite
         if rutas_viables:
-            # Si todas las rutas son viables
+            # Todas las rutas dentro del límite, renderizamos y salimos del while
             return render(
                 request,
                 "Route_Generator/reparto.html",
@@ -202,6 +216,7 @@ def optimizar_reparto(request):
                 },
             )
 
+        # Si no fueron viables, incrementamos reintento y volvemos a intentar con otra configuración
         reintento += 1
 
     # Si no se encontró una solución viable tras max_reintentos

@@ -1,21 +1,21 @@
 Identificador del producto,Nombre,Precio Venta,Tiempo de fabricación (días),Caducidad desde su fabricación (días)
-1,Ensalada Fresca 14d,66.83,14,18
-2,Pastel de Limón 5d,75.37,5,20
-3,Yogur Natural 14d,47.98,14,15
-4,Ensalada Fresca 9d,43.57,9,16
-5,Mermelada de Frambuesa 6d,99.35,6,15
-6,Tarta de Frutas 14d,39.55,14,17
-7,Pechuga de Pollo 3d,79.57,3,20
-8,Tarta de Frutas 3d,71.32,3,19
-9,Bocadillo de Atún 9d,85.88,9,14
-10,Mermelada de Frambuesa 12d,41.17,12,15
-11,Ensalada Fresca 14d,7.06,14,19
-12,Pechuga de Pollo 6d,36.34,6,16
-13,Jugo Natural 5d,17.18,5,16
-14,Pechuga de Pollo 4d,35.62,4,16
-15,Jugo Natural 2d,80.82,2,20
-16,Queso Fresco 7d,74.98,7,17
-17,Yogur Natural 1d,44.11,1,16
-18,Tarta de Frutas 2d,29.77,2,14
-19,Bocadillo de Atún 3d,30.72,3,16
-20,Pechuga de Pollo 7d,36.4,7,14
+1,Ensalada Fresca 14d,66.83,14,20
+2,Pastel de Limón 5d,75.37,5,22
+3,Yogur Natural 14d,47.98,14,23
+4,Ensalada Fresca 9d,43.57,9,30
+5,Mermelada de Frambuesa 6d,99.35,6,30
+6,Tarta de Frutas 14d,39.55,14,27
+7,Pechuga de Pollo 3d,79.57,3,25
+8,Tarta de Frutas 3d,71.32,3,23
+9,Bocadillo de Atún 9d,85.88,9,25
+10,Mermelada de Frambuesa 12d,41.17,12,26
+11,Ensalada Fresca 14d,7.06,14,22
+12,Pechuga de Pollo 6d,36.34,6,21
+13,Jugo Natural 5d,17.18,5,21
+14,Pechuga de Pollo 4d,35.62,4,23
+15,Jugo Natural 2d,80.82,2,29
+16,Queso Fresco 7d,74.98,7,28
+17,Yogur Natural 1d,44.11,1,29
+18,Tarta de Frutas 2d,29.77,2,30
+19,Bocadillo de Atún 3d,30.72,3,24
+20,Pechuga de Pollo 7d,36.4,7,23
