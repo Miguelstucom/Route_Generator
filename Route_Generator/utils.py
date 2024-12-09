@@ -158,7 +158,12 @@ def calcular_ruta_optima(camion, conexiones_file, origen="Mataró"):
 
 
 
-def calcular_ruta_mas_corta(origen, destino, conexiones_file):
+def calcular_ruta_mas_corta(
+    origen, destino, conexiones_file, fecha_envio, fecha_limite
+):
+    """
+    Calcula la ruta más corta usando NetworkX y verifica si cumple con el tiempo de caducidad.
+    """
     import pandas as pd
     import networkx as nx
     from datetime import timedelta
@@ -170,27 +175,28 @@ def calcular_ruta_mas_corta(origen, destino, conexiones_file):
             f"El nodo destino debe ser una cadena, pero es {type(destino)}."
         )
 
-    conexiones_data = pd.read_csv("Route_Generator/static/csv/conexion.csv")
     velocidad_media = 60.0
     conexiones_data = pd.read_csv(conexiones_file)
 
+    # Construir el grafo
     G = nx.Graph()
-
-    for i, row in conexiones_data.iterrows():
+    for _, row in conexiones_data.iterrows():
         capital1 = str(row["Capital_1"]).strip()
         capital2 = str(row["Capital_2"]).strip()
         peso = float(row["Peso"])
-
         G.add_edge(capital1, capital2, weight=peso)
 
+    # Validar nodos en el grafo
     if origen not in G.nodes:
         raise ValueError(f"El nodo origen '{origen}' no existe en el grafo.")
     if destino not in G.nodes:
         raise ValueError(f"El nodo destino '{destino}' no existe en el grafo.")
 
+    # Verificar si hay un camino entre los nodos
     if not nx.has_path(G, origen, destino):
         raise ValueError(f"No hay conexión entre '{origen}' y '{destino}'.")
 
+    # Calcular la ruta más corta
     try:
         ruta = nx.shortest_path(G, source=origen, target=destino, weight="weight")
     except nx.NetworkXNoPath:
