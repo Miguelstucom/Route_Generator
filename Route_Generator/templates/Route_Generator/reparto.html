@@ -216,5 +216,25 @@
         }
     });
     </script>
+        <h3>Ruta Completa:</h3>
+        <p>{{ camion_data.ruta|join:" → " }}</p>
+
+        <h3>Viabilidad de la Ruta:</h3>
+        {% for viabilidad in viabilidad_rutas %}
+            {% if viabilidad.camion_idx == camion_data.indice %}
+                <p>{{ viabilidad.mensaje }}</p>
+            {% endif %}
+        {% endfor %}
+
+        <h3>Tiempo Estimado:</h3>
+        {% for tiempo in tiempos_rutas %}
+            {% if tiempo.camion_idx == camion_data.indice %}
+                <p>Tiempo estimado: {{ tiempo.tiempo_estimado }} horas</p>
+                <p>Tiempo límite: {{ tiempo.tiempo_limite }} horas</p>
+                <p>Tiempo previsto: {{ tiempo.tiempo_previsto }} horas</p>
+                <p>{{ tiempo.mensaje }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 </body>
 </html>
