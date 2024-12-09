@@ -56,14 +56,14 @@ def optimizar_reparto(request):
     conexiones_file = "Route_Generator/static/csv/conexion.csv"
     capacidad_camion = 50
     distancias = precargar_distancias(conexiones_file)
-    velocidad_media = 120
+    velocidad_media = 120.0
 
-    for key, value in distancias.items():
-        if "peso" in value:
-            value["peso"] /= velocidad_media  # Convertir distancias a tiempo (horas)
+    # Convertir todas las distancias a horas
+    for origen_ciudad, destinos_dict in distancias.items():
+        for destino_ciudad, dist in destinos_dict.items():
+            distancias[origen_ciudad][destino_ciudad] = dist / velocidad_media
 
-    # Parámetros para el reagrupamiento
-    max_reintentos = 10  # Limite de intentos de reagrupación
+    max_reintentos = 10
     reintento = 0
 
     while reintento < max_reintentos:
@@ -72,33 +72,56 @@ def optimizar_reparto(request):
         fecha_limite_minima = None
         fecha_disponible_maxima = None
 
+        # Determinar las fechas límite y disponibles en global
         for camion in mejor_solucion:
             for pedido in camion:
-                fecha_limite = Pedido.fecha_limite_entrega(pedido)
-                fecha_envio = Pedido.fecha_disponible(pedido)
+                fecha_limite = pedido.fecha_limite_entrega()
+                fecha_envio = pedido.fecha_disponible()
 
                 if fecha_limite_minima is None or fecha_limite < fecha_limite_minima:
                     fecha_limite_minima = fecha_limite
 
-                if fecha_disponible_maxima is None or fecha_envio > fecha_disponible_maxima:
+                if (
+                    fecha_disponible_maxima is None
+                    or fecha_envio > fecha_disponible_maxima
+                ):
                     fecha_disponible_maxima = fecha_envio
 
         rutas_por_camion = []
         camiones_con_indices = []
         rutas_viables = True
-        viabilidad_rutas = []  # Lista para almacenar la viabilidad de las rutas
-        tiempos_rutas = []  # Lista para almacenar los tiempos estimados de las rutas
+        viabilidad_rutas = []
+        tiempos_rutas = []
 
+        # Iterar por cada camión de la solución
         for camion_idx, camion in enumerate(mejor_solucion, start=1):
+            # Calcular fechas límite y disponible para ESTE camión
+            fecha_limite_minima_camion = None
+            fecha_disponible_maxima_camion = None
+
+            for pedido in camion:
+                fecha_limite = pedido.fecha_limite_entrega()
+                fecha_envio = pedido.fecha_disponible()
+
+                if (
+                    fecha_limite_minima_camion is None
+                    or fecha_limite < fecha_limite_minima_camion
+                ):
+                    fecha_limite_minima_camion = fecha_limite
+
+                if (
+                    fecha_disponible_maxima_camion is None
+                    or fecha_envio > fecha_disponible_maxima_camion
+                ):
+                    fecha_disponible_maxima_camion = fecha_envio
+
             destinos = (
-                    ["Mataró"]
-                    + [pedido.ciudad_destino.nombre for pedido in camion]
-                    + ["Mataró"]
+                ["Mataró"] + [p.ciudad_destino.nombre for p in camion] + ["Mataró"]
             )
 
-            # Generar la ruta del camión
             ruta_completa = []
-            tiempo_total = 0  # Tiempo total de la ruta en horas
+            tiempo_total = 0.0
+
             for i in range(len(destinos) - 1):
                 origen = destinos[i]
                 destino = destinos[i + 1]
@@ -108,28 +131,28 @@ def optimizar_reparto(request):
                         origen,
                         destino,
                         conexiones_file,
-                        fecha_disponible_maxima,
-                        fecha_limite_minima,
+                        fecha_disponible_maxima_camion,  # fecha_envio por camión
+                        fecha_limite_minima_camion,  # fecha_limite por camión
                     )
-                    ruta_completa.extend(ruta_segmento[:-1])  # Evitar duplicados
+                    ruta_completa.extend(ruta_segmento[:-1])
 
-                    # Calcular el tiempo de este segmento y acumularlo
-                    distancia_segmento = distancias.get((origen, destino), {}).get("peso", 0)
-                    tiempo_segmento = distancia_segmento / velocidad_media  # Tiempo en horas
-                    tiempo_total += tiempo_segmento
+                    distancia_segmento = distancias.get(origen, {}).get(destino, 0)
+                    tiempo_total += distancia_segmento
 
                 except ValueError:
-                    rutas_viables = False  # Marcar que la ruta no es viable
-                    viabilidad_rutas.append({
-                        "camion_idx": camion_idx,
-                        "origen": origen,
-                        "destino": destino,
-                        "mensaje": "Ruta no viable"
-                    })
-                    break
+                    rutas_viables = False
+                    viabilidad_rutas.append(
+                        {
+                            "camion_idx": camion_idx,
+                            "origen": origen,
+                            "destino": destino,
+                            "mensaje": "Ruta no viable",
+                        }
+                    )
+                    break  # Rompe el for de destinos
 
             if not rutas_viables:
-                break  # Detener el procesamiento y reintentar
+                break  # Rompe el for de camiones para reintentar
 
             ruta_completa.append("Mataró")
             rutas_por_camion.append(ruta_completa)
@@ -137,43 +160,51 @@ def optimizar_reparto(request):
                 {"indice": camion_idx, "camion": camion, "ruta": ruta_completa}
             )
 
-            # **Aquí corregimos la definición de tiempo_limite**
-            # Asegúrate de que las fechas son objetos de tipo `datetime`
-            if fecha_limite_minima is not None and fecha_disponible_maxima is not None:
-                # Calcular la diferencia entre las fechas en horas
-                tiempo_restante = fecha_limite_minima - fecha_disponible_maxima
-                if tiempo_restante < timedelta(0):  # Si la diferencia es negativa
+            # Calcular tiempo límite por camión
+            if (
+                fecha_limite_minima_camion is not None
+                and fecha_disponible_maxima_camion is not None
+            ):
+                tiempo_restante = (
+                    fecha_limite_minima_camion - fecha_disponible_maxima_camion
+                )
+                if tiempo_restante < timedelta(0):
                     tiempo_limite = 0
                 else:
-                    tiempo_limite = tiempo_restante.total_seconds() / 3600  # Convertir a horas
+                    tiempo_limite = tiempo_restante.total_seconds() / 3600.0
             else:
-                tiempo_limite = float('inf')  # Si no hay fecha límite, asignar un valor infinito
+                tiempo_limite = float("inf")
 
-            # Guardamos el tiempo de la ruta
-            tiempos_rutas.append({
-                "camion_idx": camion_idx,
-                "tiempo_estimado": tiempo_total,
-                "tiempo_limite": tiempo_limite,
-                "tiempo_previsto": fecha_disponible_maxima,
-                "mensaje": "Ruta dentro del límite" if tiempo_total <= tiempo_limite else "Ruta excede el límite"
-            })
+            tiempos_rutas.append(
+                {
+                    "camion_idx": camion_idx,
+                    "tiempo_estimado": tiempo_total,
+                    "tiempo_limite": tiempo_limite,
+                    "tiempo_previsto": fecha_disponible_maxima_camion,
+                    "mensaje": (
+                        "Ruta dentro del límite"
+                        if tiempo_total <= tiempo_limite
+                        else "Ruta excede el límite"
+                    ),
+                }
+            )
 
+        # Una vez procesados todos los camiones
         if rutas_viables:
-            # Si todas las rutas son viables, renderizar y salir del bucle
+            # Si todas las rutas son viables
             return render(
                 request,
                 "Route_Generator/reparto.html",
                 {
                     "camiones_con_indices": camiones_con_indices,
-                    "viabilidad_rutas": viabilidad_rutas,  # Añadir la viabilidad de las rutas
-                    "tiempos_rutas": tiempos_rutas  # Añadir los tiempos de las rutas
+                    "viabilidad_rutas": viabilidad_rutas,
+                    "tiempos_rutas": tiempos_rutas,
                 },
             )
 
-        # Incrementar el contador de reintentos si alguna ruta no fue viable
         reintento += 1
 
-    # Si no se encuentra una solución tras los reintentos, devolver un mensaje de error
+    # Si no se encontró una solución viable tras max_reintentos
     return render(
         request,
         "Route_Generator/error.html",

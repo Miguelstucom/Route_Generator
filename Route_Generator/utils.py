@@ -174,17 +174,12 @@ def calcular_ruta_mas_corta(
     origen, destino, conexiones_file, fecha_envio, fecha_limite
 ):
     """
-    Calcula la ruta más corta usando NetworkX.
-
-    :param origen: Nodo de origen (str).
-    :param destino: Nodo de destino (str).
-    :param conexiones_file: Ruta al archivo CSV con las conexiones.
-    :return: Lista de nodos que forman la ruta más corta.
+    Calcula la ruta más corta usando NetworkX y verifica si cumple con el tiempo de caducidad.
     """
     import pandas as pd
     import networkx as nx
+    from datetime import timedelta
 
-    # Validar que origen y destino sean cadenas
     if not isinstance(origen, str):
         raise TypeError(f"El nodo origen debe ser una cadena, pero es {type(origen)}.")
     if not isinstance(destino, str):
@@ -192,18 +187,15 @@ def calcular_ruta_mas_corta(
             f"El nodo destino debe ser una cadena, pero es {type(destino)}."
         )
 
-    # Cargar las conexiones desde el archivo CSV
-    conexiones_data = pd.read_csv("Route_Generator/static/csv/conexion.csv")
+    velocidad_media = 120.0
+    conexiones_data = pd.read_csv(conexiones_file)
 
     # Construir el grafo
     G = nx.Graph()
-
-    for i, row in conexiones_data.iterrows():
-        capital1 = str(row["Capital_1"]).strip()  # Convertir a cadena y quitar espacios
+    for _, row in conexiones_data.iterrows():
+        capital1 = str(row["Capital_1"]).strip()
         capital2 = str(row["Capital_2"]).strip()
-        peso = float(row["Peso"])  # Asegurar que el peso es un número flotante
-
-        # Añadir la arista al grafo
+        peso = float(row["Peso"])
         G.add_edge(capital1, capital2, weight=peso)
 
     # Validar nodos en el grafo
@@ -216,29 +208,34 @@ def calcular_ruta_mas_corta(
     if not nx.has_path(G, origen, destino):
         raise ValueError(f"No hay conexión entre '{origen}' y '{destino}'.")
 
-    # Calcular y devolver la ruta más corta
+    # Calcular la ruta más corta
     try:
-        return nx.shortest_path(G, source=origen, target=destino, weight="weight")
+        ruta = nx.shortest_path(G, source=origen, target=destino, weight="weight")
     except nx.NetworkXNoPath:
         raise ValueError(
             f"No se pudo calcular una ruta entre '{origen}' y '{destino}'."
         )
 
-    peso_total = 0
-    for i in range(len(ruta) - 1):  # Recorrer nodos consecutivos en la ruta
+    # Calcular el peso total (distancia)
+    peso_total = 0.0
+    for i in range(len(ruta) - 1):
         nodo_actual = ruta[i]
         nodo_siguiente = ruta[i + 1]
-        peso_total += G[nodo_actual][nodo_siguiente][
-            "weight"
-        ]  # Sumar peso de la arista
+        peso_total += G[nodo_actual][nodo_siguiente]["weight"]
 
-    # Verificar si la ruta excede el tiempo de caducidad
-    tiempo_total_estimado = fecha_envio + timedelta(hours=peso_total)
+    # Convertir distancia total a horas
+    tiempo_en_horas = peso_total / velocidad_media
+    tiempo_total_estimado = fecha_envio + timedelta(hours=tiempo_en_horas)
 
+    # Verificar tiempo de caducidad
     if tiempo_total_estimado > fecha_limite:
         raise ValueError(
-            f"La ruta más corta excede el tiempo de caducidad. Peso total: {peso_total} horas, tiempo de caducidad: {fecha_limite}."
+            f"La ruta más corta excede el tiempo de caducidad. "
+            f"Tiempo estimado: {tiempo_en_horas} horas, fecha límite: {fecha_limite}."
         )
+
+    # Si todo va bien, retornar la ruta
+    return ruta
 
 
 def agrupar_pedidos(pedidos, capacidad_camion, distancias):
