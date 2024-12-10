@@ -54,16 +54,64 @@ def precargar_distancias(conexiones_file):
 def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_location=None):
     mapa = folium.Map(location=[40.4637, -3.7492], zoom_start=6, max_zoom=12, min_zoom=6)
 
+    pedidos = Pedido.objects.all()
+
     for i, ciudad in enumerate(ruta):
         if ciudad in coordinates:
             lat, lon = coordinates[ciudad]
             color = "red" if ciudad in ciudades_destino else "blue"
-            folium.Marker(
-                location=[lat, lon],
-                popup=f"{ciudad}",
-                tooltip=f"Punto {i + 1}",
-                icon=folium.Icon(color=color)
-            ).add_to(mapa)
+
+            if color == "red":
+                numero_ciudad_destino = ciudades_destino.index(ciudad) + 1
+                repeticiones = ciudades_destino.count(ciudad)
+                numero_ciudad_destino_str = f"{numero_ciudad_destino}+" if repeticiones > 1 else f"{numero_ciudad_destino}"
+
+                pedidos_ids = pedidos.filter(ciudad_destino__nombre=ciudad).values_list('id', flat=True)
+                pedidos_ids_str = ", ".join(map(str, pedidos_ids))
+
+                folium.Marker(
+                    location=[lat, lon],
+                    popup=f"{ciudad}",
+                    tooltip=f"{ciudad} -> Pedidos: {pedidos_ids_str}",
+                    icon=folium.DivIcon(
+                        html=f"""
+                        <div style="
+                            background-color: white;
+                            border: 2px solid red;
+                            border-radius: 50%;
+                            color: red;
+                            font-size: 12px;
+                            height: 25px;
+                            width: 25px;
+                            text-align: center;
+                            line-height: 25px;">
+                            {numero_ciudad_destino_str}
+                        </div>
+                        """
+                    )
+                ).add_to(mapa)
+            else:
+                folium.Marker(
+                    location=[lat, lon],
+                    popup=f"{ciudad}",
+                    tooltip=f"Punto {i + 1} - {ciudad}",
+                    icon=folium.DivIcon(
+                        html=f"""
+                        <div style="
+                            background-color: white;
+                            border: 2px solid blue;
+                            border-radius: 50%;
+                            color: blue;
+                            font-size: 12px;
+                            height: 23px;
+                            width: 23px;
+                            text-align: center;
+                            line-height: 25px;">
+                            i
+                        </div>
+                        """
+                    )
+                ).add_to(mapa)
 
     for i in range(len(ruta) - 1):
         ciudad1 = ruta[i]
@@ -78,6 +126,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                 opacity=1
             ).add_to(mapa)
 
+    # Añadir marcador para la ubicación del usuario
     if user_location:
         camion_icon = folium.CustomIcon(
             icon_image="Route_Generator/static/icons/camion.png",
@@ -91,6 +140,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
         ).add_to(mapa)
 
     return mapa._repr_html_()
+
 
 
 def optimizar_reparto(request):
@@ -196,6 +246,7 @@ def optimizar_reparto(request):
                             conexiones_file,
                             fecha_disponible_maxima_camion,
                             fecha_limite_minima_camion,
+                            velocidad
                         )
                         ruta_completa.extend(ruta_segmento[:-1])
                         distancia_segmento = distancias.get(origen, {}).get(destino, 0)
@@ -245,6 +296,7 @@ def optimizar_reparto(request):
                     "tiempo_de_descanso": format_horas_minutos(tiempo_de_descanso),
                     "tiempo_con_descanso": format_horas_minutos(tiempo_con_descanso),
                     "fecha_limite": fecha_disponible_maxima_camion,
+                    "fecha_minima": fecha_limite_minima_camion,
                     "mapa": mapa_html,
                 })
 

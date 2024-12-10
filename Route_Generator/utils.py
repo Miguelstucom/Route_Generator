@@ -159,7 +159,7 @@ def calcular_ruta_optima(camion, conexiones_file, origen="Mataró"):
 
 
 def calcular_ruta_mas_corta(
-    origen, destino, conexiones_file, fecha_envio, fecha_limite
+    origen, destino, conexiones_file, fecha_envio, fecha_limite,velocidad
 ):
     """
     Calcula la ruta más corta usando NetworkX y verifica si cumple con el tiempo de caducidad.
@@ -175,7 +175,7 @@ def calcular_ruta_mas_corta(
             f"El nodo destino debe ser una cadena, pero es {type(destino)}."
         )
 
-    velocidad_media = 60.0
+    velocidad_media = velocidad
     conexiones_data = pd.read_csv(conexiones_file)
 
     # Construir el grafo
