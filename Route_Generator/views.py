@@ -10,13 +10,11 @@ from reportlab.lib.pagesizes import letter
 from django.shortcuts import render
 from datetime import date
 from .models import Pedido, Ciudad, Conexion
-from .utils import agrupar_pedidos, calcular_ruta_optima, filtrar_pedidos_validos
 from .utils import (
     calcular_ruta_mas_corta,
     agrupar_pedidos,
     verificar_restricciones_tiempo,
     optimizar_camiones,
-    algoritmo_genetico,
 )
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
@@ -30,7 +28,6 @@ def main_view(request):
 
 
 def precargar_distancias(conexiones_file):
-    """Precalcula las distancias entre todas las ciudades usando Dijkstra."""
     conexiones_data = pd.read_csv(conexiones_file)
     G = nx.Graph()
 
@@ -59,7 +56,13 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
     for i, ciudad in enumerate(ruta):
         if ciudad in coordinates:
             lat, lon = coordinates[ciudad]
-            color = "red" if ciudad in ciudades_destino else "blue"
+
+            if ciudad == "Mataró":
+                color = "green"
+            elif ciudad in ciudades_destino:
+                color = "red"
+            else:
+                color = "blue"
 
             if color == "red":
                 numero_ciudad_destino = ciudades_destino.index(ciudad) + 1
@@ -72,7 +75,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                 folium.Marker(
                     location=[lat, lon],
                     popup=f"{ciudad}",
-                    tooltip=f"{ciudad} -> Pedidos: {pedidos_ids_str}",
+                    tooltip=f"Pedidos: {pedidos_ids_str}",
                     icon=folium.DivIcon(
                         html=f"""
                         <div style="
@@ -91,6 +94,8 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                     )
                 ).add_to(mapa)
             else:
+                border_color = "green" if color == "green" else "blue"
+                font_color = "green" if color == "green" else "blue"
                 folium.Marker(
                     location=[lat, lon],
                     popup=f"{ciudad}",
@@ -99,15 +104,14 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                         html=f"""
                         <div style="
                             background-color: white;
-                            border: 2px solid blue;
+                            border: 2px solid {border_color};
                             border-radius: 50%;
-                            color: blue;
+                            color: {font_color};
                             font-size: 12px;
-                            height: 23px;
-                            width: 23px;
+                            height: 15px;
+                            width: 15px;
                             text-align: center;
                             line-height: 25px;">
-                            i
                         </div>
                         """
                     )
@@ -126,7 +130,6 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                 opacity=1
             ).add_to(mapa)
 
-    # Añadir marcador para la ubicación del usuario
     if user_location:
         camion_icon = folium.CustomIcon(
             icon_image="Route_Generator/static/icons/camion.png",
@@ -140,8 +143,6 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
         ).add_to(mapa)
 
     return mapa._repr_html_()
-
-
 
 def optimizar_reparto(request):
     if request.method == "POST":
@@ -325,16 +326,10 @@ def optimizar_reparto(request):
 
     return render(request, "Route_Generator/reparto.html")
 
-
-
-
 def format_horas_minutos(tiempo_horas):
     horas = int(tiempo_horas)
     minutos = round((tiempo_horas - horas) * 60)
     return f"{horas}h {minutos}m"
-
-
-
 
 def calcular_tiempo_con_descanso(tiempo_horas):
     bloques_trabajo = tiempo_horas // 8
@@ -348,115 +343,3 @@ def calcular_tiempo_con_descanso(tiempo_horas):
     minutos = round((tiempo_redondeado - horas) * 60)
 
     return f"{horas}H {minutos}m"
-
-
-def mostrar_mapa(request):
-    csv_file = "Route_Generator/static/csv/csv.csv"
-    data = pd.read_csv(csv_file)
-
-    data["Latitud"] = data["Latitud"].str.replace(",", ".").astype(float)
-    data["Longitud"] = data["Longitud"].str.replace(",", ".").astype(float)
-
-    mapa = folium.Map(location=[40.4637, -3.7492], zoom_start=6)
-
-    coordinates = {}
-    for i, row in data.iterrows():
-        coordinates[row["Capital"]] = (row["Latitud"], row["Longitud"])
-
-    for i, row in data.iterrows():
-        folium.Marker(
-            location=[row["Latitud"], row["Longitud"]],
-            popup=f"{row['Capital']} - {row['Provincia']}",
-        ).add_to(mapa)
-
-    G = nx.Graph()
-
-    conexiones_file = "Route_Generator/static/csv/conexion.csv"
-    conexiones_data = pd.read_csv(conexiones_file)
-
-    for i, row in conexiones_data.iterrows():
-        capital1 = row["Capital_1"]
-        capital2 = row["Capital_2"]
-        peso = row["Peso"]
-
-        if capital1 in coordinates and capital2 in coordinates:
-            G.add_edge(capital1, capital2, weight=peso)
-
-            coord1 = coordinates[capital1]
-            coord2 = coordinates[capital2]
-
-            folium.PolyLine(
-                locations=[coord1, coord2], color="blue", weight=2.5, opacity=1
-            ).add_to(mapa)
-
-    def obtener_ruta_mas_corta(ciudad1, ciudad2):
-        try:
-            ruta = nx.shortest_path(G, source=ciudad1, target=ciudad2, weight="weight")
-            distancia = nx.shortest_path_length(
-                G, source=ciudad1, target=ciudad2, weight="weight"
-            )
-            return ruta, distancia
-        except nx.NetworkXNoPath:
-            return None, None
-
-    if request.method == "POST":
-        ciudad_origen = "Mataró"
-        ciudad_destino = request.POST.get("ciudad_destino", None)
-
-        if ciudad_origen and ciudad_destino:
-            ruta, distancia = obtener_ruta_mas_corta(ciudad_origen, ciudad_destino)
-            if ruta:
-                html_content = render_to_string(
-                    "Route_Generator/pdf.html",
-                    {
-                        "ciudad_origen": ciudad_origen,
-                        "ciudad_destino": ciudad_destino,
-                        "ruta": ruta,
-                        "distancia": distancia,
-                    },
-                )
-
-                response = HttpResponse(content_type="application/pdf")
-                response["Content-Disposition"] = (
-                    f'attachment; filename="ruta_{ciudad_origen}_{ciudad_destino}.pdf"'
-                )
-
-                pisa_status = pisa.CreatePDF(html_content, dest=response)
-
-                if pisa_status.err:
-                    return HttpResponse(f"Error al generar el PDF: {pisa_status.err}")
-
-                return response
-            else:
-                mensaje = (
-                    f"No hay ruta disponible entre {ciudad_origen} y {ciudad_destino}."
-                )
-                return render(
-                    request, "Route_Generator/index.html", {"mensaje": mensaje}
-                )
-        else:
-            mensaje = "Por favor, ingrese dos ciudades para calcular la ruta."
-            return render(request, "Route_Generator/index.html", {"mensaje": mensaje})
-
-    map_path = "Route_Generator/static/mapas/mapa_espana.html"
-    mapa.save(map_path)
-
-    return render(request, "Route_Generator/index.html", {"map_path": map_path})
-
-
-def calcular_distancia(origen, destino, conexiones_file):
-    """Devuelve la distancia entre dos ciudades."""
-    conexiones_data = pd.read_csv(conexiones_file)
-    fila = conexiones_data[
-        (conexiones_data["Capital_1"] == origen)
-        & (conexiones_data["Capital_2"] == destino)
-    ]
-    if fila.empty:
-        fila = conexiones_data[
-            (conexiones_data["Capital_1"] == destino)
-            & (conexiones_data["Capital_2"] == origen)
-        ]
-    if not fila.empty:
-        return float(fila.iloc[0]["Peso"])
-    else:
-        raise ValueError(f"No se encontró conexión entre {origen} y {destino}.")
