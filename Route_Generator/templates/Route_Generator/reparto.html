@@ -48,18 +48,16 @@
 
     <div class="relative">
         <label for="coste" class="block text-sm font-medium text-gray-700">Coste Medio por km (€/km):</label>
-        <div class="mt-1">
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zm0 4c-4.418 0-8 1.791-8 4v2h16v-2c0-2.209-3.582-4-8-4z" />
-                    </svg>
-                </span>
-                <input type="number" id="coste" name="coste" value="0.5" required
-                    class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
-            </div>
-            <div id="coste-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
+        <div class="relative mt-1">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zm0 4c-4.418 0-8 1.791-8 4v2h16v-2c0-2.209-3.582-4-8-4z" />
+                </svg>
+            </span>
+            <input type="number" id="coste" name="coste" step="0.01" value="0.5" required
+                class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
         </div>
+        <div id="coste-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
     </div>
 
     <div class="relative">
@@ -79,8 +77,8 @@
     </div>
 
     <div class="flex justify-center">
-        <button type="submit"
-            class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-[80%]">
+        <button id="calcular-btn" type="submit" disabled
+            class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-[80%] disabled:opacity-50 disabled:cursor-not-allowed">
             Calcular
         </button>
     </div>
@@ -88,21 +86,23 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("form");
         const inputs = [
             { id: "velocidad", min: 10, max: 80, errorId: "velocidad-error", mensaje: "La velocidad debe estar entre 10 y 80 km/h." },
             { id: "coste", min: 0.01, max: 2, errorId: "coste-error", mensaje: "El coste medio debe estar entre 0 y 2 €/km." },
             { id: "capacidad", min: 10, max: 100, errorId: "capacidad-error", mensaje: "La capacidad debe estar entre 10 y 100 unidades." }
         ];
 
-        form.addEventListener("submit", function (event) {
+        const calcularBtn = document.getElementById("calcular-btn");
+
+        function validarFormulario() {
             let isValid = true;
 
             inputs.forEach(({ id, min, max, errorId, mensaje }) => {
                 const input = document.getElementById(id);
                 const errorDiv = document.getElementById(errorId);
+                const value = parseFloat(input.value);
 
-                if (input.value < min || input.value > max || !input.value) {
+                if (isNaN(value) || value < min || value > max) {
                     isValid = false;
                     errorDiv.textContent = mensaje;
                     errorDiv.classList.remove("hidden");
@@ -111,12 +111,18 @@
                 }
             });
 
-            if (!isValid) {
-                event.preventDefault();
-            }
+            calcularBtn.disabled = !isValid;
+        }
+
+        inputs.forEach(({ id }) => {
+            const input = document.getElementById(id);
+            input.addEventListener("input", validarFormulario);
         });
+
+        validarFormulario();
     });
 </script>
+
 
 {% if mensaje_error %}
 <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
