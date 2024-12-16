@@ -9,6 +9,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from django.shortcuts import render
 from datetime import date
+from datetime import datetime
 from .models import Pedido, Ciudad, Conexion
 from .utils import (
     calcular_ruta_mas_corta,
@@ -144,9 +145,11 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
 
     return mapa._repr_html_()
 
+from datetime import datetime, timedelta
+
 def optimizar_reparto(request):
     if request.method == "POST":
-        velocidad = float(request.POST.get("velocidad", 120))
+        velocidad = float(request.POST.get("velocidad", 80))
         coste_medio = float(request.POST.get("coste", 0.5))
         capacidad_camion = float(request.POST.get("capacidad", 50))
 
@@ -169,162 +172,134 @@ def optimizar_reparto(request):
         }
 
         conexiones_file = "Route_Generator/static/csv/conexion.csv"
-        conexiones_data = pd.read_csv(conexiones_file)
-        G = nx.Graph()
-        for _, row in conexiones_data.iterrows():
-            capital1, capital2, peso = row["Capital_1"], row["Capital_2"], row["Peso"]
-            if capital1 in coordinates and capital2 in coordinates:
-                G.add_edge(capital1, capital2, weight=peso)
-
         distancias = precargar_distancias(conexiones_file)
         pedidos = Pedido.objects.all()
-        max_reintentos = 10
-        reintento = 0
 
         total_precio = 0
         total_kilometros = 0
         camiones_con_indices = []
+        pedidos_no_entregables = []
 
-        while reintento < max_reintentos:
-            mejor_solucion = optimizar_camiones(pedidos, capacidad_camion, distancias)
+        mejor_solucion = optimizar_camiones(pedidos, capacidad_camion, distancias)
 
-            fecha_limite_minima = None
-            fecha_disponible_maxima = None
-
-            for camion in mejor_solucion:
-                for pedido in camion:
-                    fecha_limite = pedido.fecha_limite_entrega()
-                    fecha_envio = pedido.fecha_disponible()
-
-                    if fecha_limite_minima is None or fecha_limite < fecha_limite_minima:
-                        fecha_limite_minima = fecha_limite
-
-                    if (
-                        fecha_disponible_maxima is None
-                        or fecha_envio > fecha_disponible_maxima
-                    ):
-                        fecha_disponible_maxima = fecha_envio
-
+        for camion_idx, camion in enumerate(mejor_solucion, start=1):
+            destinos = ["Mataró"] + [p.ciudad_destino.nombre for p in camion] + ["Mataró"]
+            ruta_completa = []
+            tiempo_total = 0.0
+            distancia_camion = 0
             rutas_viables = True
-            rutas_por_camion = []
-            viabilidad_rutas = []
-            tiempos_rutas = []
+            precio_camion = sum(p.cantidad * p.producto.precio_venta for p in camion)
 
-            for camion_idx, camion in enumerate(mejor_solucion, start=1):
-                fecha_limite_minima_camion = None
-                fecha_disponible_maxima_camion = None
-
-                for pedido in camion:
-                    fecha_limite = pedido.fecha_limite_entrega()
-                    fecha_envio = pedido.fecha_disponible()
-
-                    if (
-                        fecha_limite_minima_camion is None
-                        or fecha_limite < fecha_limite_minima_camion
-                    ):
-                        fecha_limite_minima_camion = fecha_limite
-
-                    if (
-                        fecha_disponible_maxima_camion is None
-                        or fecha_envio > fecha_disponible_maxima_camion
-                    ):
-                        fecha_disponible_maxima_camion = fecha_envio
-
-                destinos = ["Mataró"] + [p.ciudad_destino.nombre for p in camion] + ["Mataró"]
-                ruta_completa = []
-                distancia_camion = 0
-                tiempo_total = 0.0
-
-                precio_camion = sum(p.cantidad * p.producto.precio_venta for p in camion)
-                for i in range(len(destinos) - 1):
-                    origen = destinos[i]
-                    destino = destinos[i + 1]
-
-                    try:
-                        ruta_segmento = calcular_ruta_mas_corta(
-                            origen,
-                            destino,
-                            conexiones_file,
-                            fecha_disponible_maxima_camion,
-                            fecha_limite_minima_camion,
-                            velocidad
-                        )
-                        ruta_completa.extend(ruta_segmento[:-1])
-                        distancia_segmento = distancias.get(origen, {}).get(destino, 0)
-                        distancia_camion += distancia_segmento
-                        tiempo_total += distancia_segmento / velocidad
-                    except ValueError:
-                        rutas_viables = False
-                        viabilidad_rutas.append(
-                            {
-                                "camion_idx": camion_idx,
-                                "origen": origen,
-                                "destino": destino,
-                                "mensaje": "Ruta no viable",
-                            }
-                        )
-                        break
-
-                if not rutas_viables:
+            for i in range(len(destinos) - 1):
+                origen = destinos[i]
+                destino = destinos[i + 1]
+                try:
+                    ruta_segmento = calcular_ruta_mas_corta(
+                        origen,
+                        destino,
+                        conexiones_file,
+                        datetime.now(),
+                        datetime.max,
+                        velocidad
+                    )
+                    ruta_completa.extend(ruta_segmento[:-1])
+                    distancia_segmento = distancias.get(origen, {}).get(destino, 0)
+                    distancia_camion += distancia_segmento
+                    tiempo_total += distancia_segmento / velocidad
+                except ValueError:
+                    rutas_viables = False
                     break
 
-                ruta_completa.append("Mataró")
-                bloques_8h = int(tiempo_total // 8)
-                tiempo_de_descanso = bloques_8h * 16
-                tiempo_con_descanso = tiempo_total + tiempo_de_descanso
-                coste_trayecto = distancia_camion * coste_medio
+            if not rutas_viables:
+                break
 
-                total_precio += precio_camion
-                total_kilometros += distancia_camion
+            bloques_8h = int(tiempo_total // 8)
+            tiempo_descanso = bloques_8h * 16
+            tiempo_con_descanso = tiempo_total + tiempo_descanso
+            fecha_entrega = datetime.now() + timedelta(hours=tiempo_con_descanso)
 
-                mapa_html = generar_mapa(
-                    camion_idx,
-                    ruta_completa,
-                    coordinates,
-                    G,
-                    [p.ciudad_destino.nombre for p in camion],
-                    user_location,
-                )
+            fecha_limite = min(
+                (datetime.now() + timedelta(days=p.producto.caducidad)).date() for p in camion
+            )
 
-                camiones_con_indices.append({
-                    "indice": camion_idx,
-                    "camion": camion,
-                    "ruta": ruta_completa,
-                    "precio_camion": round(precio_camion, 2),
-                    "distancia_camion": distancia_camion,
-                    "coste_trayecto": round(coste_trayecto, 2),
-                    "tiempo_sin_descanso": format_horas_minutos(tiempo_total),
-                    "tiempo_de_descanso": format_horas_minutos(tiempo_de_descanso),
-                    "tiempo_con_descanso": format_horas_minutos(tiempo_con_descanso),
-                    "fecha_limite": fecha_disponible_maxima_camion,
-                    "fecha_minima": fecha_limite_minima_camion,
-                    "mapa": mapa_html,
-                })
+            for pedido in camion:
+                fecha_caducidad = datetime.now() + timedelta(days=pedido.producto.caducidad)
+                distancia_individual = distancias.get("Mataró", {}).get(pedido.ciudad_destino.nombre, 0)
 
-            if rutas_viables:
-                tiempo_total_sin_descanso = total_kilometros / velocidad
-                bloques_totales = tiempo_total_sin_descanso // 8
-                tiempo_total_de_descanso = bloques_totales * 16
-                tiempo_total_con_descanso = tiempo_total_sin_descanso + tiempo_total_de_descanso
-                coste_reparto = total_kilometros * coste_medio
+                tiempo_con_descanso_individual = calcular_tiempo_con_descansos(distancia_individual, velocidad)
+                fecha_entrega_estimada = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
 
-                return render(request, "Route_Generator/reparto.html", {
-                    "camiones_con_indices": camiones_con_indices,
-                    "total_precio": round(total_precio, 2),
-                    "total_kilometros": total_kilometros,
-                    "coste_reparto": round(coste_reparto, 2),
-                    "tiempo_total_sin_descanso": format_horas_minutos(tiempo_total_sin_descanso),
-                    "tiempo_total_de_descanso": format_horas_minutos(tiempo_total_de_descanso),
-                    "tiempo_total_con_descanso": format_horas_minutos(tiempo_total_con_descanso),
-                })
+                if fecha_entrega_estimada.date() > fecha_caducidad.date():
+                    pedidos_no_entregables.append({
+                        "pedido_id": pedido.id,
+                        "camion_id": camion_idx,
+                        "ciudad_destino": pedido.ciudad_destino.nombre,
+                        "fecha_entrega": fecha_entrega_estimada.date(),
+                        "fecha_caducidad": fecha_caducidad.date(),
+                    })
 
-            reintento += 1
+            coste_trayecto = distancia_camion * coste_medio
+            total_precio += precio_camion
+            total_kilometros += distancia_camion
+            mapa_html = generar_mapa(
+                camion_idx,
+                ruta_completa + ["Mataró"],
+                coordinates,
+                None,
+                [p.ciudad_destino.nombre for p in camion],
+                user_location,
+            )
 
-        return render(request, "Route_Generator/error.html", {
-            "mensaje": "No se pudo encontrar una solución viable después de varios intentos.",
+            camiones_con_indices.append({
+                "indice": camion_idx,
+                "camion": camion,
+                "ruta": ruta_completa + ["Mataró"],
+                "distancia_camion": distancia_camion,
+                "precio_camion": round(precio_camion, 2),
+                "coste_trayecto": round(coste_trayecto, 2),
+                "tiempo_sin_descanso": format_horas_minutos(tiempo_total),
+                "tiempo_de_descanso": format_horas_minutos(tiempo_descanso),
+                "tiempo_con_descanso": format_horas_minutos(tiempo_con_descanso),
+                "fecha_limite": fecha_limite,
+                "mapa": mapa_html,
+                "fecha_entrega": fecha_entrega.date(),
+            })
+
+        if pedidos_no_entregables:
+            return render(request, "Route_Generator/reparto.html", {
+                "mensaje_error": "Algunos pedidos no se pueden entregar a tiempo.",
+                "pedidos_no_entregables": pedidos_no_entregables,
+            })
+
+        # Calcular totales generales
+        tiempo_total_sin_descanso = total_kilometros / velocidad
+        bloques_totales = tiempo_total_sin_descanso // 8
+        tiempo_total_de_descanso = bloques_totales * 16
+        tiempo_total_con_descanso = tiempo_total_sin_descanso + tiempo_total_de_descanso
+        coste_reparto = total_kilometros * coste_medio
+
+        return render(request, "Route_Generator/reparto.html", {
+            "camiones_con_indices": camiones_con_indices,
+            "total_precio": round(total_precio, 2),
+            "total_kilometros": total_kilometros,
+            "coste_reparto": round(coste_reparto, 2),
+            "tiempo_total_sin_descanso": format_horas_minutos(tiempo_total_sin_descanso),
+            "tiempo_total_de_descanso": format_horas_minutos(tiempo_total_de_descanso),
+            "tiempo_total_con_descanso": format_horas_minutos(tiempo_total_con_descanso),
         })
 
     return render(request, "Route_Generator/reparto.html")
+
+
+
+def calcular_tiempo_con_descansos(distancia, velocidad):
+    tiempo_total = distancia / velocidad
+    bloques_8h = int(tiempo_total // 8)
+    tiempo_descanso = bloques_8h * 16
+    tiempo_con_descanso = tiempo_total + tiempo_descanso
+    return tiempo_con_descanso
+
+
 
 def format_horas_minutos(tiempo_horas):
     horas = int(tiempo_horas)

@@ -83,7 +83,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Productos importados con éxito.'))
 
     def importar_pedidos(self):
-        with open('Route_Generator/static/csv/pedidos_variados_2024-12-03.csv', newline='', encoding='utf-8') as csvfile:
+        with open('Route_Generator/static/csv/pedidos_variados_2024-12-01.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 try:
