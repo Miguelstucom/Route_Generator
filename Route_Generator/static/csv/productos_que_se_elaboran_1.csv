@@ -2,20 +2,20 @@ Identificador del producto,Nombre,Precio Venta,Tiempo de fabricación (días),Ca
 1,Ensalada Fresca,66.83,14,20
 2,Pastel de Limón,75.37,5,22
 3,Yogur Natural,47.98,14,2
-4,Ensalada Fresca,43.57,9,30
+4,Ensalada Cesar,43.57,9,1
 5,Mermelada de Frambuesa,99.35,6,30
 6,Tarta de Frutas,39.55,14,27
 7,Pechuga de Pollo,79.57,3,25
-8,Tarta de Frutas,71.32,3,23
+8,Tarta de Manzana,71.32,3,23
 9,Bocadillo de Atún,85.88,9,25
 10,Mermelada de Frambuesa,41.17,12,26
-11,Ensalada Fresca,7.06,14,22
-12,Pechuga de Pollo,36.34,6,21
+11,Ensalada de pasta,7.06,14,22
+12,Pechuga de Pavo,36.34,6,21
 13,Jugo Natural,17.18,5,21
-14,Pechuga de Pollo,35.62,4,23
-15,Jugo Natural,80.82,2,29
+14,Filete de Pollo,35.62,4,23
+15,Jugo de Piña,80.82,2,29
 16,Queso Fresco,74.98,7,28
-17,Yogur Natural,44.11,1,29
-18,Tarta de Frutas,29.77,2,30
+17,Yogur Griego,44.11,1,29
+18,Tarta de Queso,29.77,2,30
 19,Bocadillo de Atún,30.72,3,24
-20,Pechuga de Pollo,36.4,7,23
+20,Filete de Ternera,36.4,7,23

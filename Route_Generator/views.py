@@ -14,7 +14,6 @@ from .models import Pedido, Ciudad, Conexion
 from .utils import (
     calcular_ruta_mas_corta,
     agrupar_pedidos,
-    verificar_restricciones_tiempo,
     optimizar_camiones,
 )
 from django.template.loader import render_to_string
@@ -26,7 +25,6 @@ from django.http import HttpResponse
 
 def main_view(request):
     return render(request, "Route_Generator/index.html")
-
 
 def precargar_distancias(conexiones_file):
     conexiones_data = pd.read_csv(conexiones_file)
@@ -48,12 +46,13 @@ def precargar_distancias(conexiones_file):
 
     return distancias
 
-
+# Genera un mapa con las rutas asignadas a cada camión
 def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_location=None):
     mapa = folium.Map(location=[40.4637, -3.7492], zoom_start=6, max_zoom=12, min_zoom=6)
 
     pedidos = Pedido.objects.all()
 
+    # Colocamos marcadores para cada ciudad en la ruta
     for i, ciudad in enumerate(ruta):
         if ciudad in coordinates:
             lat, lon = coordinates[ciudad]
@@ -118,6 +117,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                     )
                 ).add_to(mapa)
 
+    # Dibuja líneas entre cada par de ciudades consecutivas en la ruta
     for i in range(len(ruta) - 1):
         ciudad1 = ruta[i]
         ciudad2 = ruta[i + 1]
@@ -147,11 +147,15 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
 
 from datetime import datetime, timedelta
 
+# Función para la optimización de la ruta
 def optimizar_reparto(request):
+    #Recoge los 3 parámetros del formulario
     if request.method == "POST":
         velocidad = float(request.POST.get("velocidad", 80))
         coste_medio = float(request.POST.get("coste", 0.5))
         capacidad_camion = float(request.POST.get("capacidad", 50))
+
+        #Recogida de la localización del usuario (para desarrollo futuro, ya que ahora mismo se muestra estático)
 
         user_lat = request.POST.get("user_lat", "").strip()
         user_lon = request.POST.get("user_lon", "").strip()
@@ -162,6 +166,7 @@ def optimizar_reparto(request):
             except ValueError:
                 user_location = None
 
+        #Carga de csvs estáticos como son las ciudades y las conexiones
         csv_file = "Route_Generator/static/csv/csv.csv"
         data = pd.read_csv(csv_file)
         data["Latitud"] = data["Latitud"].str.replace(",", ".").astype(float)
@@ -175,6 +180,7 @@ def optimizar_reparto(request):
         distancias = precargar_distancias(conexiones_file)
         pedidos = Pedido.objects.all()
 
+        #Creación de variables
         total_precio = 0
         total_kilometros = 0
         camiones_con_indices = []
@@ -213,6 +219,7 @@ def optimizar_reparto(request):
             if not rutas_viables:
                 break
 
+            #Calcular los bloques de tiempo, descanso y caducidad
             bloques_8h = int(tiempo_total // 8)
             tiempo_descanso = bloques_8h * 16
             tiempo_con_descanso = tiempo_total + tiempo_descanso
@@ -222,6 +229,7 @@ def optimizar_reparto(request):
                 (datetime.now() + timedelta(days=p.producto.caducidad)).date() for p in camion
             )
 
+            #Agrupamos los pedidos no entregables por fecha de caducidad
             for pedido in camion:
                 fecha_caducidad = datetime.now() + timedelta(days=pedido.producto.caducidad)
                 distancia_individual = distancias.get("Mataró", {}).get(pedido.ciudad_destino.nombre, 0)
@@ -238,9 +246,12 @@ def optimizar_reparto(request):
                         "fecha_caducidad": fecha_caducidad.date(),
                     })
 
+            #Se calculan los costes
             coste_trayecto = distancia_camion * coste_medio
             total_precio += precio_camion
             total_kilometros += distancia_camion
+
+            #Generamos mapa con la ruta
             mapa_html = generar_mapa(
                 camion_idx,
                 ruta_completa + ["Mataró"],
@@ -265,13 +276,14 @@ def optimizar_reparto(request):
                 "fecha_entrega": fecha_entrega.date(),
             })
 
+        #Si existen pedidos no entregables salta el error en pantalla con los pedidos
         if pedidos_no_entregables:
             return render(request, "Route_Generator/reparto.html", {
                 "mensaje_error": "Algunos pedidos no se pueden entregar a tiempo.",
                 "pedidos_no_entregables": pedidos_no_entregables,
             })
 
-        # Calcular totales generales
+        #Calculo de los tiempos totales de cada camión
         tiempo_total_sin_descanso = total_kilometros / velocidad
         bloques_totales = tiempo_total_sin_descanso // 8
         tiempo_total_de_descanso = bloques_totales * 16
@@ -290,8 +302,7 @@ def optimizar_reparto(request):
 
     return render(request, "Route_Generator/reparto.html")
 
-
-
+# Función auxiliar para calcular tiempo total incluyendo descansos
 def calcular_tiempo_con_descansos(distancia, velocidad):
     tiempo_total = distancia / velocidad
     bloques_8h = int(tiempo_total // 8)
@@ -299,22 +310,51 @@ def calcular_tiempo_con_descansos(distancia, velocidad):
     tiempo_con_descanso = tiempo_total + tiempo_descanso
     return tiempo_con_descanso
 
-
-
+# Formatea horas y minutos
 def format_horas_minutos(tiempo_horas):
     horas = int(tiempo_horas)
     minutos = round((tiempo_horas - horas) * 60)
     return f"{horas}h {minutos}m"
 
-def calcular_tiempo_con_descanso(tiempo_horas):
-    bloques_trabajo = tiempo_horas // 8
-    tiempo_restante = tiempo_horas % 8
-    descanso = bloques_trabajo * 8
-    tiempo_total = bloques_trabajo * 8 + descanso + tiempo_restante
+# Vista que solo usamos en otro mapa distinto para ver todas las conexiones que existen (README)
+def mostrar_mapa(request):
+    csv_file = "Route_Generator/static/csv/csv.csv"
+    data = pd.read_csv(csv_file)
 
-    tiempo_redondeado = round(tiempo_total, 2)
+    data["Latitud"] = data["Latitud"].str.replace(",", ".").astype(float)
+    data["Longitud"] = data["Longitud"].str.replace(",", ".").astype(float)
 
-    horas = int(tiempo_redondeado)
-    minutos = round((tiempo_redondeado - horas) * 60)
+    mapa = folium.Map(location=[40.4637, -3.7492], zoom_start=6)
 
-    return f"{horas}H {minutos}m"
+    coordinates = {}
+    for i, row in data.iterrows():
+        coordinates[row['Capital']] = (row['Latitud'], row['Longitud'])
+
+    for i, row in data.iterrows():
+        folium.Marker(
+            location=[row["Latitud"], row["Longitud"]],
+            popup=f"{row['Capital']} - {row['Provincia']}"
+        ).add_to(mapa)
+
+    conexiones_file = "Route_Generator/static/csv/conexion.csv"
+    conexiones_data = pd.read_csv(conexiones_file)
+
+    for i, row in conexiones_data.iterrows():
+        capital1 = row["Capital_1"]
+        capital2 = row["Capital_2"]
+
+        if capital1 in coordinates and capital2 in coordinates:
+            coord1 = coordinates[capital1]
+            coord2 = coordinates[capital2]
+
+            folium.PolyLine(
+                locations=[coord1, coord2],
+                color="blue",
+                weight=2.5,
+                opacity=1
+            ).add_to(mapa)
+
+    map_path = "Route_Generator/static/mapas/mapa_espana.html"
+    mapa.save(map_path)
+
+    return render(request, 'Route_Generator/mapa.html', {'map_path': map_path})
