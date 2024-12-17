@@ -219,7 +219,7 @@ def optimizar_reparto(request):
             if not rutas_viables:
                 break
 
-            #Calcular los bloques de tiempo, descanso y caducidad
+            # Calcular bloques de tiempo, descanso y caducidad
             bloques_8h = int(tiempo_total // 8)
             tiempo_descanso = bloques_8h * 16
             tiempo_con_descanso = tiempo_total + tiempo_descanso
@@ -229,29 +229,30 @@ def optimizar_reparto(request):
                 (datetime.now() + timedelta(days=p.producto.caducidad)).date() for p in camion
             )
 
-            #Agrupamos los pedidos no entregables por fecha de caducidad
+            pedidos_con_fechas = []
             for pedido in camion:
                 fecha_caducidad = datetime.now() + timedelta(days=pedido.producto.caducidad)
                 distancia_individual = distancias.get("Mataró", {}).get(pedido.ciudad_destino.nombre, 0)
 
                 tiempo_con_descanso_individual = calcular_tiempo_con_descansos(distancia_individual, velocidad)
-                fecha_entrega_estimada = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
+                fecha_entrega_individual = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
 
-                if fecha_entrega_estimada.date() > fecha_caducidad.date():
-                    pedidos_no_entregables.append({
-                        "pedido_id": pedido.id,
-                        "camion_id": camion_idx,
-                        "ciudad_destino": pedido.ciudad_destino.nombre,
-                        "fecha_entrega": fecha_entrega_estimada.date(),
-                        "fecha_caducidad": fecha_caducidad.date(),
-                    })
+                pedidos_con_fechas.append({
+                    "id": pedido.id,
+                    "ciudad_destino": pedido.ciudad_destino.nombre,
+                    "producto": pedido.producto.nombre,
+                    "cantidad": pedido.cantidad,
+                    "precio_unitario": pedido.producto.precio_venta,
+                    "fecha_entrega": fecha_entrega_individual.date(),
+                    "fecha_caducidad": fecha_caducidad.date(),
+                })
 
-            #Se calculan los costes
+            # Se calculan los costes
             coste_trayecto = distancia_camion * coste_medio
             total_precio += precio_camion
             total_kilometros += distancia_camion
 
-            #Generamos mapa con la ruta
+            # Generamos mapa con la ruta
             mapa_html = generar_mapa(
                 camion_idx,
                 ruta_completa + ["Mataró"],
@@ -263,7 +264,7 @@ def optimizar_reparto(request):
 
             camiones_con_indices.append({
                 "indice": camion_idx,
-                "camion": camion,
+                "camion": pedidos_con_fechas,  # Pedidos con fechas individuales
                 "ruta": ruta_completa + ["Mataró"],
                 "distancia_camion": distancia_camion,
                 "precio_camion": round(precio_camion, 2),

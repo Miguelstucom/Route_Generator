@@ -8,172 +8,199 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-        <div class="bg-indigo-600 text-white py-4 shadow-lg">
-        <div class="container mx-auto flex items-center justify-between px-4">
-            <button class="text-white focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-            </button>
+<div class="bg-indigo-600 text-white py-4 shadow-lg">
+    <div class="container mx-auto flex items-center justify-between px-4">
+        <button class="text-white focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+            </svg>
+        </button>
 
-            <h1 class="text-xl font-semibold">Optimización de Reparto</h1>
+        <h1 class="text-xl font-semibold">Optimización de Reparto</h1>
 
-            <button class="text-white focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-            </button>
-        </div>
-    </div>
-    <div class="container mx-auto px-4 py-6">
-        <h1 class="text-2xl font-bold text-center mb-6"></h1>
-
-<form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-4">
-    {% csrf_token %}
-    <div class="relative">
-        <label for="velocidad" class="block text-sm font-medium text-gray-700">Velocidad Media (km/h):</label>
-        <div class="mt-1">
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4H8l4-8v6h3l-4 8z" />
-                    </svg>
-                </span>
-                <input type="number" id="velocidad" name="velocidad" value="80" required
-                    class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
-            </div>
-            <div id="velocidad-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
-        </div>
-    </div>
-
-    <div class="relative">
-        <label for="coste" class="block text-sm font-medium text-gray-700">Coste Medio por km (€/km):</label>
-        <div class="relative mt-1">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zm0 4c-4.418 0-8 1.791-8 4v2h16v-2c0-2.209-3.582-4-8-4z" />
-                </svg>
-            </span>
-            <input type="number" id="coste" name="coste" step="0.01" value="0.5" required
-                class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
-        </div>
-        <div id="coste-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
-    </div>
-
-    <div class="relative">
-        <label for="capacidad" class="block text-sm font-medium text-gray-700">Capacidad del Camión (unidades):</label>
-        <div class="mt-1">
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 7.5L12 3m0 0l2.25 4.5M12 3v9m-9 4.5A2.25 2.25 0 015.25 15h13.5A2.25 2.25 0 0121 17.25v1.5M3 17.25V15h1.5A1.5 1.5 0 006 16.5V17m12-1.5h1.5A1.5 1.5 0 0021 15v-1.5" />
-                    </svg>
-                </span>
-                <input type="number" id="capacidad" name="capacidad" value="50" required
-                    class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
-            </div>
-            <div id="capacidad-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
-        </div>
-    </div>
-
-    <div class="flex justify-center">
-        <button id="calcular-btn" type="submit" disabled
-            class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-[80%] disabled:opacity-50 disabled:cursor-not-allowed">
-            Calcular
+        <button class="text-white focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
         </button>
     </div>
-</form>
+</div>
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-center mb-6"></h1>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const inputs = [
-            { id: "velocidad", min: 10, max: 80, errorId: "velocidad-error", mensaje: "La velocidad debe estar entre 10 y 80 km/h." },
-            { id: "coste", min: 0.01, max: 2, errorId: "coste-error", mensaje: "El coste medio debe estar entre 0 y 2 €/km." },
-            { id: "capacidad", min: 10, max: 100, errorId: "capacidad-error", mensaje: "La capacidad debe estar entre 10 y 100 unidades." }
-        ];
+    <form method="post" class="bg-white shadow-md rounded-lg p-6 space-y-4">
+        {% csrf_token %}
+        <div class="relative">
+            <label for="velocidad" class="block text-sm font-medium text-gray-700">Velocidad Media (km/h):</label>
+            <div class="mt-1">
+                <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 16h-1v-4H8l4-8v6h3l-4 8z"/>
+                    </svg>
+                </span>
+                    <input type="number" id="velocidad" name="velocidad" value="80" required
+                           class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
+                </div>
+                <div id="velocidad-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
+            </div>
+        </div>
 
-        const calcularBtn = document.getElementById("calcular-btn");
+        <div class="relative">
+            <label for="coste" class="block text-sm font-medium text-gray-700">Coste Medio por km (€/km):</label>
+            <div class="relative mt-1">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zm0 4c-4.418 0-8 1.791-8 4v2h16v-2c0-2.209-3.582-4-8-4z"/>
+                </svg>
+            </span>
+                <input type="number" id="coste" name="coste" step="0.01" value="0.5" required
+                       class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
+            </div>
+            <div id="coste-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
+        </div>
 
-        function validarFormulario() {
-            let isValid = true;
+        <div class="relative">
+            <label for="capacidad" class="block text-sm font-medium text-gray-700">Capacidad del Camión
+                (unidades):</label>
+            <div class="mt-1">
+                <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9.75 7.5L12 3m0 0l2.25 4.5M12 3v9m-9 4.5A2.25 2.25 0 015.25 15h13.5A2.25 2.25 0 0121 17.25v1.5M3 17.25V15h1.5A1.5 1.5 0 006 16.5V17m12-1.5h1.5A1.5 1.5 0 0021 15v-1.5"/>
+                    </svg>
+                </span>
+                    <input type="number" id="capacidad" name="capacidad" value="50" required
+                           class="block w-full pl-10 bg-gray-50 border-gray-400 border-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-800">
+                </div>
+                <div id="capacidad-error" class="hidden text-sm text-white bg-red-500 rounded mt-2 p-2"></div>
+            </div>
+        </div>
 
-            inputs.forEach(({ id, min, max, errorId, mensaje }) => {
-                const input = document.getElementById(id);
-                const errorDiv = document.getElementById(errorId);
-                const value = parseFloat(input.value);
-
-                if (isNaN(value) || value < min || value > max) {
-                    isValid = false;
-                    errorDiv.textContent = mensaje;
-                    errorDiv.classList.remove("hidden");
-                } else {
-                    errorDiv.classList.add("hidden");
-                }
-            });
-
-            calcularBtn.disabled = !isValid;
-        }
-
-        inputs.forEach(({ id }) => {
-            const input = document.getElementById(id);
-            input.addEventListener("input", validarFormulario);
-        });
-
-        validarFormulario();
-    });
-</script>
-
-
-{% if mensaje_error %}
-<div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-    <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-6">
-        <h2 class="text-lg font-bold text-red-600 mb-4">Error</h2>
-        <p class="text-gray-700 mb-4">{{ mensaje_error }}</p>
-
-        {% if pedidos_no_entregables %}
-        <table class="table-auto w-full border-collapse border border-gray-300">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-4 py-2 text-left">ID del Pedido</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Camion ID</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Ciudad Destino</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Fecha de Entrega</th>
-                    <th class="border border-gray-300 px-4 py-2 text-left">Fecha de Caducidad</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pedido in pedidos_no_entregables %}
-                <tr>
-                    <td class="border border-gray-300 px-4 py-2">{{ pedido.pedido_id }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ pedido.camion_id }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ pedido.ciudad_destino }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ pedido.fecha_entrega }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ pedido.fecha_caducidad }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="text-gray-700">No hay datos disponibles.</p>
-        {% endif %}
-        <div class="mt-4 flex justify-end">
-            <button onclick="closeError()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
-                Cerrar
+        <div class="flex justify-center">
+            <button id="calcular-btn" type="submit" disabled
+                    class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-[80%] disabled:opacity-50 disabled:cursor-not-allowed">
+                Calcular
             </button>
         </div>
-    </div>
-</div>
+    </form>
 
-<script>
-    function closeError() {
-        document.querySelector('[class~="fixed"]').remove();
-    }
-</script>
-{% endif %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputs = [
+                {
+                    id: "velocidad",
+                    min: 10,
+                    max: 80,
+                    errorId: "velocidad-error",
+                    mensaje: "La velocidad debe estar entre 10 y 80 km/h."
+                },
+                {
+                    id: "coste",
+                    min: 0.01,
+                    max: 2,
+                    errorId: "coste-error",
+                    mensaje: "El coste medio debe estar entre 0 y 2 €/km."
+                },
+                {
+                    id: "capacidad",
+                    min: 10,
+                    max: 100,
+                    errorId: "capacidad-error",
+                    mensaje: "La capacidad debe estar entre 10 y 100 unidades."
+                }
+            ];
+
+            const calcularBtn = document.getElementById("calcular-btn");
+
+            function validarFormulario() {
+                let isValid = true;
+
+                inputs.forEach(({id, min, max, errorId, mensaje}) => {
+                    const input = document.getElementById(id);
+                    const errorDiv = document.getElementById(errorId);
+                    const value = parseFloat(input.value);
+
+                    if (isNaN(value) || value < min || value > max) {
+                        isValid = false;
+                        errorDiv.textContent = mensaje;
+                        errorDiv.classList.remove("hidden");
+                    } else {
+                        errorDiv.classList.add("hidden");
+                    }
+                });
+
+                calcularBtn.disabled = !isValid;
+            }
+
+            inputs.forEach(({id}) => {
+                const input = document.getElementById(id);
+                input.addEventListener("input", validarFormulario);
+            });
+
+            validarFormulario();
+        });
+    </script>
+
+
+    {% if mensaje_error %}
+        <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+            <div class="bg-white rounded-lg shadow-lg max-w-xl w-full p-6">
+                <h2 class="text-lg font-bold text-red-600 mb-4">Error</h2>
+                <p class="text-gray-700 mb-4">{{ mensaje_error }}</p>
+
+                {% if pedidos_no_entregables %}
+                    <table class="table-auto w-full border-collapse border border-gray-300">
+                        <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 px-4 py-2 text-left">ID del Pedido</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Camion ID</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Ciudad Destino</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Fecha de Entrega</th>
+                            <th class="border border-gray-300 px-4 py-2 text-left">Fecha de Caducidad</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for pedido in pedidos_no_entregables %}
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">{{ pedido.pedido_id }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ pedido.camion_id }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ pedido.ciudad_destino }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ pedido.fecha_entrega }}</td>
+                                <td class="border border-gray-300 px-4 py-2">{{ pedido.fecha_caducidad }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-gray-700">No hay datos disponibles.</p>
+                {% endif %}
+                <div class="mt-4 flex justify-end">
+                    <button onclick="closeError()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function closeError() {
+                document.querySelector('[class~="fixed"]').remove();
+            }
+        </script>
+    {% endif %}
 
 
 
-        {% if camiones_con_indices %}
+    {% if camiones_con_indices %}
         <div class="bg-indigo-50 border-l-4 border-indigo-400 shadow-md rounded-lg p-6 mt-6">
             <h2 class="text-xl font-semibold text-indigo-600 mb-4">Presupuesto de Optimización</h2>
             <ul class="space-y-2">
@@ -191,115 +218,120 @@
 
             <div class="flex space-x-2 overflow-x-auto mt-6 bg-gray-100 p-3 rounded-lg shadow-inner">
                 <button
-                    onclick="showTab('all-camiones')"
-                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                        onclick="showTab('all-camiones')"
+                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
                     Todos los Camiones
                 </button>
                 {% for camion_data in camiones_con_indices %}
-                <button
-                    onclick="showTab('camion-{{ camion_data.indice }}')"
-                    class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
-                    Camión {{ camion_data.indice }}
-                </button>
+                    <button
+                            onclick="showTab('camion-{{ camion_data.indice }}')"
+                            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                        Camión {{ camion_data.indice }}
+                    </button>
                 {% endfor %}
             </div>
 
             <div id="all-camiones" class="mt-6 hidden tab-content">
                 {% for camion_data in camiones_con_indices %}
-                <div class="bg-gray-100 p-4 rounded-lg shadow mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700">Camión {{ camion_data.indice }}</h3>
-                    <ul class="space-y-1">
-                        <li><strong>Precio Mercancía:</strong> {{ camion_data.precio_camion }} €</li>
-                        <li><strong>Distancia:</strong> {{ camion_data.distancia_camion }} km</li>
-                        <li><strong>Coste:</strong> {{ camion_data.coste_trayecto }} €</li>
-                        <li><strong>Tiempo (sin descansos):</strong> {{ camion_data.tiempo_sin_descanso }}</li>
-                        <li><strong>Ruta:</strong> {{ camion_data.ruta|join:" → " }}</li>
-                    </ul>
+                    <div class="bg-gray-100 p-4 rounded-lg shadow mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">Camión {{ camion_data.indice }}</h3>
+                        <ul class="space-y-1">
+                            <li><strong>Precio Mercancía:</strong> {{ camion_data.precio_camion }} €</li>
+                            <li><strong>Distancia:</strong> {{ camion_data.distancia_camion }} km</li>
+                            <li><strong>Coste:</strong> {{ camion_data.coste_trayecto }} €</li>
+                            <li><strong>Tiempo (sin descansos):</strong> {{ camion_data.tiempo_sin_descanso }}</li>
+                            <li><strong>Ruta:</strong> {{ camion_data.ruta|join:" → " }}</li>
+                        </ul>
 
-                </div>
+                    </div>
                 {% endfor %}
             </div>
 
             {% for camion_data in camiones_con_indices %}
-            <div id="camion-{{ camion_data.indice }}" class="mt-6 hidden tab-content">
-                <div class="bg-gray-100 p-6 rounded-lg shadow">
-                    <h3 class="text-lg font-semibold text-indigo-600">Camión {{ camion_data.indice }}</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="font-medium text-gray-700">Detalles</h4>
-                            <ul class="space-y-1">
-                                <li><strong>Precio Mercancía:</strong> {{ camion_data.precio_camion }} €</li>
-                                <li><strong>Distancia Recorrida:</strong> {{ camion_data.distancia_camion }} km</li>
-                                <li><strong>Coste:</strong> {{ camion_data.coste_trayecto }} €</li>
-                                <li><strong>Tiempo (sin descansos):</strong> {{ camion_data.tiempo_sin_descanso }}</li>
-                                <li><strong>Tiempo (con descansos):</strong> {{ camion_data.tiempo_con_descanso }}</li>
-                            </ul>
-                        </div>
+                <div id="camion-{{ camion_data.indice }}" class="mt-6 hidden tab-content">
+                    <div class="bg-gray-100 p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-indigo-600">Camión {{ camion_data.indice }}</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-medium text-gray-700">Detalles</h4>
+                                <ul class="space-y-1">
+                                    <li><strong>Precio Mercancía:</strong> {{ camion_data.precio_camion }} €</li>
+                                    <li><strong>Distancia Recorrida:</strong> {{ camion_data.distancia_camion }} km</li>
+                                    <li><strong>Coste:</strong> {{ camion_data.coste_trayecto }} €</li>
+                                    <li><strong>Tiempo (sin descansos):</strong> {{ camion_data.tiempo_sin_descanso }}
+                                    </li>
+                                    <li><strong>Tiempo (con descansos):</strong> {{ camion_data.tiempo_con_descanso }}
+                                    </li>
+                                </ul>
+                            </div>
                             <div>
                                 <h4 class="font-medium text-gray-700">Pedidos</h4>
                                 <table class="table-auto border-collapse border border-gray-300 w-full mt-4">
                                     <thead>
-                                        <tr class="bg-gray-200">
-                                            <th class="border border-gray-300 px-4 py-2 text-left">ID del Pedido</th>
-                                            <th class="border border-gray-300 px-4 py-2 text-left">Destino</th>
-                                            <th class="border border-gray-300 px-4 py-2 text-left">Producto</th>
-                                            <th class="border border-gray-300 px-4 py-2 text-left">Nº Palés</th>
-                                            <th class="border border-gray-300 px-4 py-2 text-left">Precio Unitario (€)</th>
-                                        </tr>
+                                    <tr class="bg-gray-200">
+                                        <th class="border border-gray-300 px-4 py-2 text-left">ID del Pedido</th>
+                                        <th class="border border-gray-300 px-4 py-2 text-left">Destino</th>
+                                        <th class="border border-gray-300 px-4 py-2 text-left">Producto</th>
+                                        <th class="border border-gray-300 px-4 py-2 text-left">Nº Palés</th>
+                                        <th class="border border-gray-300 px-4 py-2 text-left">Precio Unitario (€)</th>
+                                        <th class="border border-gray-300 px-4 py-2 text-left">Fecha de Entrega estimada</th>
+                                        <th class="border border-gray-300 px-4 py-2 text-left">Fecha de Caducidad</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        {% for pedido in camion_data.camion %}
+                                    {% for pedido in camion_data.camion %}
                                         <tr>
                                             <td class="border border-gray-300 px-4 py-2">{{ pedido.id }}</td>
-                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.ciudad_destino.nombre }}</td>
-                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.producto.nombre }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.ciudad_destino }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.producto }}</td>
                                             <td class="border border-gray-300 px-4 py-2">{{ pedido.cantidad }}</td>
-                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.producto.precio_venta }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.precio_unitario }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.fecha_entrega }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">{{ pedido.fecha_caducidad }}</td>
                                         </tr>
-                                        {% endfor %}
+                                    {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-
-
-                    </div>
-                    <h4 class="font-medium text-gray-700 mt-4">Ruta</h4>
-                    <p class="text-gray-600">{{ camion_data.ruta|join:" → " }}</p>
+                        </div>
+                        <h4 class="font-medium text-gray-700 mt-4">Ruta</h4>
+                        <p class="text-gray-600">{{ camion_data.ruta|join:" → " }}</p>
                         <div class="mt-4">
                             {{ camion_data.mapa|safe }}
                         </div>
+                    </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
-        {% endif %}
-    </div>
+    {% endif %}
+</div>
 
-    <script>
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById(tabId).classList.remove('hidden');
-        }
-        showTab('all-camiones');
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        document.getElementById(tabId).classList.remove('hidden');
+    }
 
-        async function downloadPDF(camionIndex) {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
+    showTab('all-camiones');
 
-            pdf.setFontSize(18);
-            pdf.text(`Información del Camión ${camionIndex}`, 10, 10);
+    async function downloadPDF(camionIndex) {
+        const {jsPDF} = window.jspdf;
+        const pdf = new jsPDF();
 
-            const table = document.getElementById(`table-camion-${camionIndex}`);
-            pdf.autoTable({ html: table, startY: 20 });
+        pdf.setFontSize(18);
+        pdf.text(`Información del Camión ${camionIndex}`, 10, 10);
 
-            pdf.save(`Camion_${camionIndex}.pdf`);
-        }
+        const table = document.getElementById(`table-camion-${camionIndex}`);
+        pdf.autoTable({html: table, startY: 20});
 
-            document.addEventListener("DOMContentLoaded", function() {
+        pdf.save(`Camion_${camionIndex}.pdf`);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
+            navigator.geolocation.getCurrentPosition(function (position) {
                 document.getElementById("user_lat").value = position.coords.latitude;
                 document.getElementById("user_lon").value = position.coords.longitude;
             });
@@ -307,6 +339,6 @@
             alert("Geolocalización no soportada por tu navegador.");
         }
     });
-    </script>
+</script>
 </body>
 </html>
