@@ -1,21 +1,21 @@
 Identificador del producto,Nombre,Precio Venta,Tiempo de fabricación (días),Caducidad desde su fabricación (días)
-1,Ensalada Fresca,66.83,14,20
-2,Pastel de Limón,75.37,5,22
-3,Yogur Natural,47.98,14,2
-4,Ensalada Cesar,43.57,9,1
+1,Ensalada Fresca,96.83,14,20
+2,Pastel de Limón,105.37,5,22
+3,Yogur Natural,97.98,14,20
+4,Ensalada Cesar,83.57,9,15
 5,Mermelada de Frambuesa,99.35,6,30
-6,Tarta de Frutas,39.55,14,27
-7,Pechuga de Pollo,79.57,3,25
-8,Tarta de Manzana,71.32,3,23
-9,Bocadillo de Atún,85.88,9,25
-10,Mermelada de Frambuesa,41.17,12,26
-11,Ensalada de pasta,7.06,14,22
-12,Pechuga de Pavo,36.34,6,21
-13,Jugo Natural,17.18,5,21
-14,Filete de Pollo,35.62,4,23
-15,Jugo de Piña,80.82,2,29
-16,Queso Fresco,74.98,7,28
-17,Yogur Griego,44.11,1,29
-18,Tarta de Queso,29.77,2,30
-19,Bocadillo de Atún,30.72,3,24
-20,Filete de Ternera,36.4,7,23
+6,Tarta de Frutas,79.55,14,27
+7,Pechuga de Pollo,119.57,3,25
+8,Tarta de Manzana,91.32,3,23
+9,Bocadillo de Atún,125.88,9,25
+10,Mermelada de Frambuesa,81.17,12,26
+11,Ensalada de pasta,70.06,14,22
+12,Pechuga de Pavo,90.34,6,21
+13,Jugo Natural,57.18,5,21
+14,Filete de Pollo,85.62,4,23
+15,Jugo de Piña,50.82,2,29
+16,Queso Fresco,94.98,7,28
+17,Yogur Griego,84.11,1,29
+18,Tarta de Queso,79.77,2,30
+19,Bocadillo de Atún,50.72,3,24
+20,Filete de Ternera,136.4,7,23

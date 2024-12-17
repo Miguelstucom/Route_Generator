@@ -82,6 +82,7 @@ class Command(BaseCommand):
                 )
         self.stdout.write(self.style.SUCCESS('Productos importados con éxito.'))
 
+    #Cambiar el juego de pruebas
     def importar_pedidos(self):
         with open('Route_Generator/static/csv/test.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
