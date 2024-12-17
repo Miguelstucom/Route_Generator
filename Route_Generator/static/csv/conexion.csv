@@ -19,9 +19,11 @@ Zamora,Salamanca,65
 Segovia,Valladolid,95
 Logroño,Vitoria,50
 Salamanca,Ávila,105
+Burgos,Madrid,240
 Zamora,Valladolid,110
 Salamanca,Segovia,150
 Salamanca,Valladolid,115
+Badajoz,Córdoba,280
 Ávila,Segovia,75
 Oviedo,Santander,200
 León,Santander,170
@@ -146,6 +148,7 @@ Castelo Branco,Portalegre,80
 Portalegre,Badajoz,80
 Huelva,Faro,120
 Faro,Beja,80
+Beja,Sevilla,200
 Faro,Setúbal,220
 Beja,Évora,80
 Évora,Setúbal,100
