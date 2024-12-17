@@ -237,6 +237,16 @@ def optimizar_reparto(request):
                 tiempo_con_descanso_individual = calcular_tiempo_con_descansos(distancia_individual, velocidad)
                 fecha_entrega_individual = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
 
+                fecha_entrega_estimada = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
+                if fecha_entrega_estimada.date() > fecha_caducidad.date():
+                    pedidos_no_entregables.append({
+                        "pedido_id": pedido.id,
+                        "camion_id": camion_idx,
+                        "ciudad_destino": pedido.ciudad_destino.nombre,
+                        "fecha_entrega": fecha_entrega_estimada.date(),
+                        "fecha_caducidad": fecha_caducidad.date(),
+                    })
+
                 pedidos_con_fechas.append({
                     "id": pedido.id,
                     "ciudad_destino": pedido.ciudad_destino.nombre,
