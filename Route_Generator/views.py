@@ -179,139 +179,162 @@ def optimizar_reparto(request):
         conexiones_file = "Route_Generator/static/csv/conexion.csv"
         distancias = precargar_distancias(conexiones_file)
         pedidos = Pedido.objects.all()
-
+        max_reintentos = 10
+        reintento = 0
         #Creación de variables
         total_precio = 0
         total_kilometros = 0
         camiones_con_indices = []
         pedidos_no_entregables = []
 
-        mejor_solucion = optimizar_camiones(pedidos, capacidad_camion, distancias)
+        while reintento < max_reintentos:
+            pedidos_no_entregables = []
+            mejor_solucion = optimizar_camiones(pedidos, capacidad_camion, distancias,reintento)
+            fecha_limite_minima = None
+            fecha_disponible_maxima = None
+            for camion in mejor_solucion:
+                for pedido in camion:
+                    fecha_limite = pedido.fecha_limite_entrega()
+                    fecha_envio = pedido.fecha_disponible()
+                    if fecha_limite_minima is None or fecha_limite < fecha_limite_minima:
+                        fecha_limite_minima = fecha_limite
+                    if (
+                        fecha_disponible_maxima is None
+                        or fecha_envio > fecha_disponible_maxima
+                    ):
+                        fecha_disponible_maxima = fecha_envio
 
-        for camion_idx, camion in enumerate(mejor_solucion, start=1):
-            destinos = ["Mataró"] + [p.ciudad_destino.nombre for p in camion] + ["Mataró"]
-            ruta_completa = []
-            tiempo_total = 0.0
-            distancia_camion = 0
-            rutas_viables = True
-            precio_camion = sum(p.cantidad * p.producto.precio_venta for p in camion)
+            for camion_idx, camion in enumerate(mejor_solucion, start=1):
+                destinos = ["Mataró"] + [p.ciudad_destino.nombre for p in camion] + ["Mataró"]
+                ruta_completa = []
+                tiempo_total = 0.0
+                distancia_camion = 0
+                rutas_viables = True
+                precio_camion = sum(p.cantidad * p.producto.precio_venta for p in camion)
 
-            for i in range(len(destinos) - 1):
-                origen = destinos[i]
-                destino = destinos[i + 1]
-                try:
-                    ruta_segmento = calcular_ruta_mas_corta(
-                        origen,
-                        destino,
-                        conexiones_file,
-                        datetime.now(),
-                        datetime.max,
-                        velocidad
-                    )
-                    ruta_completa.extend(ruta_segmento[:-1])
-                    distancia_segmento = distancias.get(origen, {}).get(destino, 0)
-                    distancia_camion += distancia_segmento
-                    tiempo_total += distancia_segmento / velocidad
-                except ValueError:
-                    rutas_viables = False
+                for i in range(len(destinos) - 1):
+                    origen = destinos[i]
+                    destino = destinos[i + 1]
+                    try:
+                        ruta_segmento = calcular_ruta_mas_corta(
+                            origen,
+                            destino,
+                            conexiones_file,
+                            datetime.now(),
+                            datetime.max,
+                            velocidad
+                        )
+                        ruta_completa.extend(ruta_segmento[:-1])
+                        distancia_segmento = distancias.get(origen, {}).get(destino, 0)
+                        distancia_camion += distancia_segmento
+                        tiempo_total += distancia_segmento / velocidad
+                    except ValueError:
+                        rutas_viables = False
+                        break
+
+                if not rutas_viables:
                     break
 
-            if not rutas_viables:
-                break
+                # Calcular bloques de tiempo, descanso y caducidad
+                bloques_8h = int(tiempo_total // 8)
+                tiempo_descanso = bloques_8h * 16
+                tiempo_con_descanso = tiempo_total + tiempo_descanso
+                fecha_entrega = datetime.now() + timedelta(hours=tiempo_con_descanso)
 
-            # Calcular bloques de tiempo, descanso y caducidad
-            bloques_8h = int(tiempo_total // 8)
-            tiempo_descanso = bloques_8h * 16
-            tiempo_con_descanso = tiempo_total + tiempo_descanso
-            fecha_entrega = datetime.now() + timedelta(hours=tiempo_con_descanso)
+                fecha_limite = min(
+                    (datetime.now() + timedelta(days=p.producto.caducidad)).date() for p in camion
+                )
 
-            fecha_limite = min(
-                (datetime.now() + timedelta(days=p.producto.caducidad)).date() for p in camion
-            )
+                pedidos_con_fechas = []
+                for pedido in camion:
+                    fecha_caducidad = datetime.now() + timedelta(days=pedido.producto.caducidad)
+                    distancia_individual = distancias.get("Mataró", {}).get(pedido.ciudad_destino.nombre, 0)
 
-            pedidos_con_fechas = []
-            for pedido in camion:
-                fecha_caducidad = datetime.now() + timedelta(days=pedido.producto.caducidad)
-                distancia_individual = distancias.get("Mataró", {}).get(pedido.ciudad_destino.nombre, 0)
+                    tiempo_con_descanso_individual = calcular_tiempo_con_descansos(distancia_individual, velocidad)
+                    fecha_entrega_individual = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
 
-                tiempo_con_descanso_individual = calcular_tiempo_con_descansos(distancia_individual, velocidad)
-                fecha_entrega_individual = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
+                    fecha_entrega_estimada = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
+                    if fecha_entrega_estimada.date() > fecha_caducidad.date():
+                        pedidos_no_entregables.append({
+                            "pedido_id": pedido.id,
+                            "camion_id": camion_idx,
+                            "ciudad_destino": pedido.ciudad_destino.nombre,
+                            "fecha_entrega": fecha_entrega_estimada.date(),
+                            "fecha_caducidad": fecha_caducidad.date(),
+                        })
 
-                fecha_entrega_estimada = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
-                if fecha_entrega_estimada.date() > fecha_caducidad.date():
-                    pedidos_no_entregables.append({
-                        "pedido_id": pedido.id,
-                        "camion_id": camion_idx,
+                    pedidos_con_fechas.append({
+                        "id": pedido.id,
                         "ciudad_destino": pedido.ciudad_destino.nombre,
-                        "fecha_entrega": fecha_entrega_estimada.date(),
+                        "producto": pedido.producto.nombre,
+                        "cantidad": pedido.cantidad,
+                        "precio_unitario": pedido.producto.precio_venta,
+                        "fecha_entrega": fecha_entrega_individual.date(),
                         "fecha_caducidad": fecha_caducidad.date(),
                     })
 
-                pedidos_con_fechas.append({
-                    "id": pedido.id,
-                    "ciudad_destino": pedido.ciudad_destino.nombre,
-                    "producto": pedido.producto.nombre,
-                    "cantidad": pedido.cantidad,
-                    "precio_unitario": pedido.producto.precio_venta,
-                    "fecha_entrega": fecha_entrega_individual.date(),
-                    "fecha_caducidad": fecha_caducidad.date(),
+                # Se calculan los costes
+                coste_trayecto = distancia_camion * coste_medio
+                total_precio += precio_camion
+                total_kilometros += distancia_camion
+
+                # Generamos mapa con la ruta
+                mapa_html = generar_mapa(
+                    camion_idx,
+                    ruta_completa + ["Mataró"],
+                    coordinates,
+                    None,
+                    [p.ciudad_destino.nombre for p in camion],
+                    user_location,
+                )
+
+                camiones_con_indices.append({
+                    "indice": camion_idx,
+                    "camion": pedidos_con_fechas,  # Pedidos con fechas individuales
+                    "ruta": ruta_completa + ["Mataró"],
+                    "distancia_camion": distancia_camion,
+                    "precio_camion": round(precio_camion, 2),
+                    "coste_trayecto": round(coste_trayecto, 2),
+                    "tiempo_sin_descanso": format_horas_minutos(tiempo_total),
+                    "tiempo_de_descanso": format_horas_minutos(tiempo_descanso),
+                    "tiempo_con_descanso": format_horas_minutos(tiempo_con_descanso),
+                    "fecha_limite": fecha_limite,
+                    "mapa": mapa_html,
+                    "fecha_entrega": fecha_entrega.date(),
                 })
 
-            # Se calculan los costes
-            coste_trayecto = distancia_camion * coste_medio
-            total_precio += precio_camion
-            total_kilometros += distancia_camion
 
-            # Generamos mapa con la ruta
-            mapa_html = generar_mapa(
-                camion_idx,
-                ruta_completa + ["Mataró"],
-                coordinates,
-                None,
-                [p.ciudad_destino.nombre for p in camion],
-                user_location,
-            )
+            #Si existen pedidos no entregables se reintenta
+            #Si se alcanzan el numero maximo de intentos se muestra el error
+            if pedidos_no_entregables:
+                print(reintento)
+                reintento += 1
+                if reintento == max_reintentos:
+                    return render(request, "Route_Generator/reparto.html", {
+                        "mensaje_error": "Algunos pedidos no se pueden entregar a tiempo.",
+                        "pedidos_no_entregables": pedidos_no_entregables,
+                    })
+                continue  # Intenta de nuevo si hay pedidos inviables
 
-            camiones_con_indices.append({
-                "indice": camion_idx,
-                "camion": pedidos_con_fechas,  # Pedidos con fechas individuales
-                "ruta": ruta_completa + ["Mataró"],
-                "distancia_camion": distancia_camion,
-                "precio_camion": round(precio_camion, 2),
-                "coste_trayecto": round(coste_trayecto, 2),
-                "tiempo_sin_descanso": format_horas_minutos(tiempo_total),
-                "tiempo_de_descanso": format_horas_minutos(tiempo_descanso),
-                "tiempo_con_descanso": format_horas_minutos(tiempo_con_descanso),
-                "fecha_limite": fecha_limite,
-                "mapa": mapa_html,
-                "fecha_entrega": fecha_entrega.date(),
-            })
+            #Calculo de los tiempos totales de cada camión
+            tiempo_total_sin_descanso = total_kilometros / velocidad
+            bloques_totales = tiempo_total_sin_descanso // 8
+            tiempo_total_de_descanso = bloques_totales * 16
+            tiempo_total_con_descanso = tiempo_total_sin_descanso + tiempo_total_de_descanso
+            coste_reparto = total_kilometros * coste_medio
 
-        #Si existen pedidos no entregables salta el error en pantalla con los pedidos
-        if pedidos_no_entregables:
             return render(request, "Route_Generator/reparto.html", {
-                "mensaje_error": "Algunos pedidos no se pueden entregar a tiempo.",
-                "pedidos_no_entregables": pedidos_no_entregables,
+                "camiones_con_indices": camiones_con_indices,
+                "total_precio": round(total_precio, 2),
+                "total_kilometros": total_kilometros,
+                "coste_reparto": round(coste_reparto, 2),
+                "tiempo_total_sin_descanso": format_horas_minutos(tiempo_total_sin_descanso),
+                "tiempo_total_de_descanso": format_horas_minutos(tiempo_total_de_descanso),
+                "tiempo_total_con_descanso": format_horas_minutos(tiempo_total_con_descanso),
             })
-
-        #Calculo de los tiempos totales de cada camión
-        tiempo_total_sin_descanso = total_kilometros / velocidad
-        bloques_totales = tiempo_total_sin_descanso // 8
-        tiempo_total_de_descanso = bloques_totales * 16
-        tiempo_total_con_descanso = tiempo_total_sin_descanso + tiempo_total_de_descanso
-        coste_reparto = total_kilometros * coste_medio
-
-        return render(request, "Route_Generator/reparto.html", {
-            "camiones_con_indices": camiones_con_indices,
-            "total_precio": round(total_precio, 2),
-            "total_kilometros": total_kilometros,
-            "coste_reparto": round(coste_reparto, 2),
-            "tiempo_total_sin_descanso": format_horas_minutos(tiempo_total_sin_descanso),
-            "tiempo_total_de_descanso": format_horas_minutos(tiempo_total_de_descanso),
-            "tiempo_total_con_descanso": format_horas_minutos(tiempo_total_con_descanso),
-        })
 
     return render(request, "Route_Generator/reparto.html")
+
 
 # Función auxiliar para calcular tiempo total incluyendo descansos
 def calcular_tiempo_con_descansos(distancia, velocidad):

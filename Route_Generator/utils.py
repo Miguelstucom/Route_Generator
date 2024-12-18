@@ -67,15 +67,24 @@ def calcular_ruta_mas_corta(
     return ruta
 
 
-def agrupar_pedidos(pedidos, capacidad_camion, distancias, punto_inicial="Mataró"):
-    # Ordenación inicial de pedidos basada en la distancia desde el punto inicial
-    pedidos = sorted(
-        pedidos,
-        key=lambda p: distancias[punto_inicial][p.ciudad_destino.nombre]
-    )
+def agrupar_pedidos(pedidos, capacidad_camion, distancias, punto_inicial="Mataró", randomize=True):
+    if randomize:
+        # Si randomize es True, introducimos el factor aleatorio
+        pedidos = sorted(
+            pedidos,
+            key=lambda p: distancias[punto_inicial][p.ciudad_destino.nombre] * (1 + random.random() * 0.1)
+        )
+    else:
+        # Si no queremos aleatoriedad (primer intento), ordenamos sin factor aleatorio
+        pedidos = sorted(
+            pedidos,
+            key=lambda p: distancias[punto_inicial][p.ciudad_destino.nombre]
+        )
+
+    print("Pedidos ordenados inicialmente:", [(p.id, p.ciudad_destino.nombre) for p in pedidos])
+
     camiones = []
 
-    # Distribución de pedidos en camiones según la capacidad máxima
     while pedidos:
         camion_actual = []
         peso_actual = 0
@@ -84,25 +93,43 @@ def agrupar_pedidos(pedidos, capacidad_camion, distancias, punto_inicial="Matar�
         camion_actual.append(pedido_base)
         peso_actual += pedido_base.cantidad
 
-        # Intento de llenar el camión con pedidos cercanos
-        while pedidos:
-            proximos = sorted(
-                pedidos,
-                key=lambda p: distancias[camion_actual[-1].ciudad_destino.nombre][p.ciudad_destino.nombre]
-            )
+        print(f"\n[Inicio Camión] Pedido base ID:{pedido_base.id}, destino: {pedido_base.ciudad_destino.nombre}")
 
+        while pedidos:
+            if randomize:
+                proximos = sorted(
+                    pedidos,
+                    key=lambda p: distancias[camion_actual[-1].ciudad_destino.nombre][p.ciudad_destino.nombre] * (1 + random.random() * 0.1)
+                )
+            else:
+                proximos = sorted(
+                    pedidos,
+                    key=lambda p: distancias[camion_actual[-1].ciudad_destino.nombre][p.ciudad_destino.nombre]
+                )
+
+            print("Próximos candidatos:", [(p.id, p.ciudad_destino.nombre) for p in proximos])
+
+            agregado = False
             for pedido in proximos:
                 if peso_actual + pedido.cantidad <= capacidad_camion:
                     camion_actual.append(pedido)
                     peso_actual += pedido.cantidad
                     pedidos.remove(pedido)
+                    print(f"Añadido pedido ID:{pedido.id}, destino:{pedido.ciudad_destino.nombre}")
+                    agregado = True
                     break
-            else:
+
+            if not agregado:  # No se encontró ninguno que encaje
                 break
 
+        print("[Fin Camión]:", [(p.id, p.ciudad_destino.nombre) for p in camion_actual])
         camiones.append(camion_actual)
 
     return camiones
 
-def optimizar_camiones(pedidos, capacidad_camion,distancia):
-    return agrupar_pedidos(pedidos, capacidad_camion,distancia)
+def optimizar_camiones(pedidos, capacidad_camion, distancia, intento=1):
+    randomize = (intento > 1)
+    print("\n" + "="*50)
+    print(f"==== Intento número: {intento} ====")
+    print("="*50 + "\n")
+    return agrupar_pedidos(pedidos, capacidad_camion, distancia, randomize=randomize)
