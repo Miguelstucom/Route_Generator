@@ -1,6 +1,8 @@
 from django.db import models
 from datetime import timedelta
 
+#Generamos los modelos que usamos durante la ejecucion
+
 class Ciudad(models.Model):
     nombre = models.CharField(max_length=100)
     provincia = models.CharField(max_length=100)

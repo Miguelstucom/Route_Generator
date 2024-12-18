@@ -65,6 +65,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                 color = "blue"
 
             if color == "red":
+                #Se buscan los destinos donde paramos y que pedido se entrega
                 numero_ciudad_destino = ciudades_destino.index(ciudad) + 1
                 repeticiones = ciudades_destino.count(ciudad)
                 numero_ciudad_destino_str = f"{numero_ciudad_destino}+" if repeticiones > 1 else f"{numero_ciudad_destino}"
@@ -72,6 +73,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                 pedidos_ids = pedidos.filter(ciudad_destino__nombre=ciudad).values_list('id', flat=True)
                 pedidos_ids_str = ", ".join(map(str, pedidos_ids))
 
+                #Marcamos aquellos puntos donde hay entregas
                 folium.Marker(
                     location=[lat, lon],
                     popup=f"{ciudad}",
@@ -94,6 +96,7 @@ def generar_mapa(camion_idx, ruta, coordinates, grafo, ciudades_destino, user_lo
                     )
                 ).add_to(mapa)
             else:
+                #Aqui marcamos cuales son los puntos de paso y cual es el punto de partida en verde
                 border_color = "green" if color == "green" else "blue"
                 font_color = "green" if color == "green" else "blue"
                 folium.Marker(
@@ -247,6 +250,8 @@ def optimizar_reparto(request):
 
                 pedidos_con_fechas = []
                 for pedido in camion:
+
+                    #Generamos las fechas de caducidad y de entrega
                     fecha_caducidad = datetime.now() + timedelta(days=pedido.producto.caducidad)
                     distancia_individual = distancias.get("Mataró", {}).get(pedido.ciudad_destino.nombre, 0)
 
@@ -254,6 +259,7 @@ def optimizar_reparto(request):
                     fecha_entrega_individual = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
 
                     fecha_entrega_estimada = datetime.now() + timedelta(hours=tiempo_con_descanso_individual)
+                    #Datos de los pedidos que no son entregables
                     if fecha_entrega_estimada.date() > fecha_caducidad.date():
                         pedidos_no_entregables.append({
                             "pedido_id": pedido.id,
@@ -262,7 +268,7 @@ def optimizar_reparto(request):
                             "fecha_entrega": fecha_entrega_estimada.date(),
                             "fecha_caducidad": fecha_caducidad.date(),
                         })
-
+                    #Datos de los pedidos cuando si son entregables
                     pedidos_con_fechas.append({
                         "id": pedido.id,
                         "ciudad_destino": pedido.ciudad_destino.nombre,
@@ -287,10 +293,10 @@ def optimizar_reparto(request):
                     [p.ciudad_destino.nombre for p in camion],
                     user_location,
                 )
-
+                #Camiones que salen a repartir
                 camiones_con_indices.append({
                     "indice": camion_idx,
-                    "camion": pedidos_con_fechas,  # Pedidos con fechas individuales
+                    "camion": pedidos_con_fechas,
                     "ruta": ruta_completa + ["Mataró"],
                     "distancia_camion": distancia_camion,
                     "precio_camion": round(precio_camion, 2),
@@ -332,7 +338,7 @@ def optimizar_reparto(request):
                 "tiempo_total_de_descanso": format_horas_minutos(tiempo_total_de_descanso),
                 "tiempo_total_con_descanso": format_horas_minutos(tiempo_total_con_descanso),
             })
-
+    #Renderizamos el html donde aparece todo
     return render(request, "Route_Generator/reparto.html")
 
 

@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
     #Cambiar el juego de pruebas
     def importar_pedidos(self):
-        with open('Route_Generator/static/csv/pedidos_actualizados.csv', newline='', encoding='utf-8') as csvfile:
+        with open('Route_Generator/static/csv/test.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 try:
